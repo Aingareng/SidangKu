@@ -12,14 +12,23 @@ import Modal from "../../../shared/components/organisms/Modal";
 import Form from "../../../shared/components/molecules/Form";
 import Label from "../../../shared/components/atoms/Label";
 import Input from "../../../shared/components/atoms/Input";
-import { getInputTextAttributes } from "../../../shared/utils/getElementAttributes";
+import {
+  getButtonAttributes,
+  // getButtonAttributes,
+  getInputTextAttributes,
+} from "../../../shared/utils/getElementAttributes";
 import Button from "../../../shared/components/atoms/Button";
+import CreateSchedules from "../../../features/schedules/components/CreateSchedules";
+import { Icon } from "@iconify/react/dist/iconify.js";
+// import { Icon } from "@iconify/react/dist/iconify.js";
 
 export default function CaseHistoryPage() {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
   FormAttributes.className = " grid grid-cols-1 gap-4";
   ButtonAttributes.className += " btn-primary";
+
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const scheduleDialog = useRef<HTMLDialogElement>(null);
 
   const [tableHead] = useState([
     "Tanggal",
@@ -72,6 +81,43 @@ export default function CaseHistoryPage() {
     },
   ]);
 
+  async function handleDestroyEmployee(id: number, key: string) {
+    console.log("🚀 ~ handleDestroyEmployee ~ key:", key);
+    console.log("🚀 ~ CaseHistoryPage ~ id:", id);
+
+    if (key === "SET_HEARING" && id) {
+      dialogRef.current?.showModal();
+    }
+  }
+  function handleAddSchedule() {
+    scheduleDialog.current?.showModal();
+  }
+  const queueInputAttr = {
+    ...getInputTextAttributes({
+      name: "queue",
+      type: "number",
+      min: 0,
+      className: "input input-bordered w-full",
+    }),
+  };
+
+  const roomInputAttr = {
+    ...getInputTextAttributes({
+      name: "room",
+      type: "number",
+      min: 0,
+      className: "input input-bordered w-full",
+    }),
+  };
+
+  const btnAttr = {
+    ...getButtonAttributes({
+      type: "button",
+      className: "btn btn-primary",
+      onClick: handleAddSchedule,
+    }),
+  };
+
   const tableHeadContent = (
     <>
       {tableHead.map((item) => (
@@ -102,36 +148,21 @@ export default function CaseHistoryPage() {
     </>
   );
 
-  async function handleDestroyEmployee(id: number, key: string) {
-    console.log("🚀 ~ handleDestroyEmployee ~ key:", key);
-    console.log("🚀 ~ CaseHistoryPage ~ id:", id);
-
-    if (key === "SET_HEARING" && id) {
-      dialogRef.current?.showModal();
-    }
-  }
-
-  const queueInputAttr = {
-    ...getInputTextAttributes({
-      name: "queue",
-      type: "number",
-      min: 0,
-      className: "input input-bordered w-full",
-    }),
-  };
-
-  const roomInputAttr = {
-    ...getInputTextAttributes({
-      name: "room",
-      type: "number",
-      min: 0,
-      className: "input input-bordered w-full",
-    }),
-  };
-
   return (
-    <section>
-      <header></header>
+    <section className="grid grid-cols-1 gap-5">
+      <header>
+        <header className=" flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Jadwal Sidang</h1>
+          <Button attributes={btnAttr}>
+            <Icon
+              icon="material-symbols:add-2-rounded"
+              width="24"
+              height="24"
+            />
+            Tambah Jadwal
+          </Button>
+        </header>
+      </header>
       <main>
         <div className="overflow-x-auto border rounded-2xl bg-base-100">
           <Table attributes={TableAttributes} tableHead={tableHeadContent}>
@@ -139,6 +170,10 @@ export default function CaseHistoryPage() {
           </Table>
         </div>
       </main>
+
+      {/*Modal section */}
+
+      <CreateSchedules ref={scheduleDialog} />
 
       <Modal ref={dialogRef}>
         <div className="grid grid-cols-1 gap-4  w-8/12  ">

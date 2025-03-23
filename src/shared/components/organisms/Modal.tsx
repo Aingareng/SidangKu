@@ -6,6 +6,7 @@ import { ForwardedRef, ReactNode } from "react";
 interface IProps {
   ref: ForwardedRef<HTMLDialogElement>;
   children: ReactNode;
+  [key: string]: unknown;
 }
 
 export default function Modal({ ref, children }: IProps) {

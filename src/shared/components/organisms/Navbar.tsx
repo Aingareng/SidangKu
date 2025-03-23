@@ -50,13 +50,13 @@ export default function Navbar() {
                       width="24"
                       height="24"
                     />
-                    Perkara
+                    Sidang
                   </>
                 }
               >
                 <ul>
                   <List>
-                    <Link to="/case-history">Daftar Perkara</Link>
+                    <Link to="/schedules">Jadwal Sidang</Link>
                   </List>
                 </ul>
               </Submenu>

@@ -1,7 +1,7 @@
 import React from "react";
 
 interface IProps {
-  attributes?: React.HtmlHTMLAttributes<HTMLFormElement>;
+  attributes?: React.FormHTMLAttributes<HTMLFormElement>;
   children: React.ReactNode;
   [key: string]: unknown;
 }
