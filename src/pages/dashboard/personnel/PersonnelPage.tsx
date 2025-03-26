@@ -3,18 +3,26 @@ import Button from "../../../shared/components/atoms/Button";
 import Table from "../../../shared/components/organisms/Table";
 import Dropdown from "../../../shared/components/molecules/Dropdown";
 import List from "../../../shared/components/atoms/List";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useActionState, useRef, useState } from "react";
 import Modal from "../../../shared/components/organisms/Modal";
 import Label from "../../../shared/components/atoms/Label";
 import Input from "../../../shared/components/atoms/Input";
 import Select from "../../../shared/components/atoms/Select";
 import Form from "../../../shared/components/molecules/Form";
 import usePersonnel from "../../../features/personnel/hooks/usePersonnel";
+import { IPersonnelPayload } from "../../../features/personnel/types/personnel";
 
 export default function PersonnelPage() {
   const tableHead = ["Nama", "Jabatan", "Aksi"];
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isShowPassword, setIshowPassword] = useState(false);
+  const [formData, setFormData] = useState<IPersonnelPayload>({
+    name: "",
+    role: 0,
+    email: "",
+    password: "",
+    phone: "",
+  });
 
   const { personnels, isFetched } = usePersonnel();
 
@@ -34,6 +42,29 @@ export default function PersonnelPage() {
       console.log("Delete item with id", id);
     }
   }
+
+  function handleSelectChange(event: ChangeEvent<HTMLSelectElement>) {
+    setFormData((prev) => ({
+      ...prev,
+      role: Number(event.target.value),
+    }));
+  }
+  function handleTextInputChange(
+    field: keyof IPersonnelPayload,
+    event: ChangeEvent<HTMLInputElement>
+  ) {
+    const { value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
+  function handleSubmit() {
+    console.log(formData);
+  }
+
+  const [, formAction] = useActionState(handleSubmit, null);
 
   return (
     <div className="grid grid-cols-1 gap-5">
@@ -110,16 +141,23 @@ export default function PersonnelPage() {
       <Modal ref={dialogRef}>
         <div className="grid grid-cols-1 gap-4  w-8/12  ">
           <h1 className="text-2xl font-bold text-center">Tambah Pihak</h1>
-          <Form attributes={{ className: "grid grid-cols-1 gap-4" }}>
+          <Form
+            attributes={{
+              action: formAction,
+              className: "grid grid-cols-1 gap-4",
+            }}
+          >
             <main>
               <Label labelType="form-control" leftLabel="Nama Pihak">
                 <Input
                   attributes={{
                     className: "input input-bordered w-full",
                     type: "text",
-                    name: "party-name",
+                    name: "name",
                     placeholder: "Masukkan nama pihak",
                     required: true,
+                    value: formData?.name,
+                    onChange: (event) => handleTextInputChange("name", event),
                   }}
                 />
               </Label>
@@ -129,9 +167,25 @@ export default function PersonnelPage() {
                   attributes={{
                     className: "input input-bordered w-full",
                     type: "email",
-                    name: "party-name",
+                    name: "email",
                     placeholder: "Cth : John@example.com",
                     required: true,
+                    value: formData?.email,
+                    onChange: (event) => handleTextInputChange("email", event),
+                  }}
+                />
+              </Label>
+
+              <Label labelType="form-control" leftLabel="No Handphone">
+                <Input
+                  attributes={{
+                    className: "input input-bordered w-full",
+                    type: "text",
+                    name: "phone",
+                    placeholder: "Cth : 0822xxxxxx",
+                    required: true,
+                    value: formData?.phone,
+                    onChange: (event) => handleTextInputChange("phone", event),
                   }}
                 />
               </Label>
@@ -142,9 +196,12 @@ export default function PersonnelPage() {
                     attributes={{
                       className: "input input-bordered w-full",
                       type: isShowPassword ? "text" : "password",
-                      name: "party-name",
+                      name: "password",
                       placeholder: "Masukan kata sandi",
                       required: true,
+                      value: formData?.password,
+                      onChange: (event) =>
+                        handleTextInputChange("password", event),
                     }}
                   />
                 </Label>
@@ -162,9 +219,11 @@ export default function PersonnelPage() {
                   attr={{
                     className: "select select-bordered w-full max-w-xs",
                     required: true,
+                    value: formData?.role,
+                    onChange: (event) => handleSelectChange(event),
                   }}
                 >
-                  <option disabled value="">
+                  <option disabled value="0">
                     Pilih Satu
                   </option>
                   <option value="1">Hakim</option>
@@ -180,7 +239,7 @@ export default function PersonnelPage() {
             </main>
             <footer className="flex items-center justify-end">
               <Button
-                attributes={{ type: "button", className: "btn btn-primary" }}
+                attributes={{ type: "submit", className: "btn btn-primary" }}
               >
                 Tambah
               </Button>
