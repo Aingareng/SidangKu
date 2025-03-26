@@ -63,6 +63,13 @@ export default function Navbar() {
             </List>
 
             <List>
+              <Link to="/personnel">
+                <Icon icon="material-symbols:person" width="24" height="24" />
+                Data Pihak Terkait
+              </Link>
+            </List>
+
+            <List>
               <Link to="/login">
                 <Icon
                   icon="material-symbols:exit-to-app-rounded"

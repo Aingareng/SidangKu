@@ -1,34 +1,22 @@
+// components/molecules/Dropdown.tsx
 import Menu from "./Menu";
-import List from "../atoms/List";
 import Button from "../atoms/Button";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { getButtonAttributes } from "../../utils/getElementAttributes";
+import { Icon } from "@iconify/react";
 
 interface IProps {
   itemIndex?: number;
-  onAction: (itemId: number, key: string) => void;
+  children: React.ReactNode;
+  tableLength?: number;
 }
 
-export default function Dropdown({ itemIndex, onAction }: IProps) {
+export default function Dropdown({ itemIndex, children, tableLength }: IProps) {
   let menuPosition = "dropdown-left dropdown-end";
-
   if (itemIndex === 1) {
     menuPosition = "dropdown-end";
   }
-
-  const buttonDeleteAttr = {
-    ...getButtonAttributes({
-      type: "button",
-      onClick: () => onAction(itemIndex as number, "DESTROY"),
-    }),
-  };
-
-  const buttonSetHearingAttr = {
-    ...getButtonAttributes({
-      type: "button",
-      onClick: () => onAction(itemIndex as number, "SET_HEARING"),
-    }),
-  };
+  if (itemIndex === 1 && tableLength && tableLength === 1) {
+    menuPosition = "dropdown-left dropdown-end";
+  }
 
   return (
     <div className={`dropdown ${menuPosition}`}>
@@ -40,19 +28,15 @@ export default function Dropdown({ itemIndex, onAction }: IProps) {
       >
         <Icon icon="material-symbols:more-vert" width="24" height="24" />
       </Button>
+
       <Menu
         attributes={{
           tabIndex: 0,
           className:
-            "dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow",
+            "dropdown-content shadow-md menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow",
         }}
       >
-        <List>
-          <Button attributes={buttonSetHearingAttr}>Tentukan Sidang</Button>
-        </List>
-        <List>
-          <Button attributes={buttonDeleteAttr}>Hapus</Button>
-        </List>
+        {children}
       </Menu>
     </div>
   );

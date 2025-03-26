@@ -14,13 +14,12 @@ import Label from "../../../shared/components/atoms/Label";
 import Input from "../../../shared/components/atoms/Input";
 import {
   getButtonAttributes,
-  // getButtonAttributes,
   getInputTextAttributes,
 } from "../../../shared/utils/getElementAttributes";
 import Button from "../../../shared/components/atoms/Button";
 import CreateSchedules from "../../../features/schedules/components/CreateSchedules";
 import { Icon } from "@iconify/react/dist/iconify.js";
-// import { Icon } from "@iconify/react/dist/iconify.js";
+import List from "../../../shared/components/atoms/List";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
@@ -81,12 +80,12 @@ export default function CaseHistoryPage() {
     },
   ]);
 
-  async function handleDestroyEmployee(id: number, key: string) {
-    console.log("🚀 ~ handleDestroyEmployee ~ key:", key);
-    console.log("🚀 ~ CaseHistoryPage ~ id:", id);
-
+  function handleAction(id: number, key: string) {
     if (key === "SET_HEARING" && id) {
       dialogRef.current?.showModal();
+    }
+    if (key === "DELETE" && id) {
+      console.log("Delete item with id", id);
     }
   }
   function handleAddSchedule() {
@@ -141,7 +140,32 @@ export default function CaseHistoryPage() {
           <td>{item.nomorAntrian}</td>
           <td>{item.ruangSidang}</td>
           <th>
-            <Dropdown itemIndex={item.no} onAction={handleDestroyEmployee} />
+            <Dropdown itemIndex={item.no}>
+              <List>
+                <Button
+                  attributes={{
+                    type: "button",
+                    onClick: () => handleAction(item.no, "SET_HEARING"),
+                    className: "w-full text-left",
+                  }}
+                >
+                  <Icon icon="mdi:gavel" className="mr-2" />
+                  Tentukan Sidang
+                </Button>
+              </List>
+              <List>
+                <Button
+                  attributes={{
+                    type: "button",
+                    onClick: () => handleAction(item.no, "DELETE"),
+                    className: "w-full text-left text-red-600",
+                  }}
+                >
+                  <Icon icon="mdi:trash-can-outline" className="mr-2" />
+                  Hapus
+                </Button>
+              </List>
+            </Dropdown>
           </th>
         </tr>
       ))}
@@ -151,7 +175,7 @@ export default function CaseHistoryPage() {
   return (
     <section className="grid grid-cols-1 gap-5">
       <header>
-        <header className=" flex justify-between items-center">
+        <div className=" flex justify-between items-center">
           <h1 className="text-3xl font-bold">Jadwal Sidang</h1>
           <Button attributes={btnAttr}>
             <Icon
@@ -161,7 +185,7 @@ export default function CaseHistoryPage() {
             />
             Tambah Jadwal
           </Button>
-        </header>
+        </div>
       </header>
       <main>
         <div className="overflow-x-auto border rounded-2xl bg-base-100">
