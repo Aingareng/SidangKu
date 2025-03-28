@@ -11,9 +11,11 @@ import Select from "../../../shared/components/atoms/Select";
 import Form from "../../../shared/components/molecules/Form";
 import usePersonnel from "../../../features/personnel/hooks/usePersonnel";
 import { IPersonnelPayload } from "../../../features/personnel/types/personnel";
+import PersonnelFilter from "../../../features/personnel/components/PersonnelFilter";
+import { FilterValues } from "../../../shared/components/organisms/TableFilter";
 
 export default function PersonnelPage() {
-  const tableHead = ["Nama", "Jabatan", "Aksi"];
+  const tableHead = ["Nama", "Jabatan/Peran", "Aksi"];
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isShowPassword, setIshowPassword] = useState(false);
   const [formData, setFormData] = useState<IPersonnelPayload>({
@@ -23,8 +25,12 @@ export default function PersonnelPage() {
     password: "",
     phone: "",
   });
+  const [filterValue, setFilterValue] = useState<FilterValues>();
 
-  const { personnels, isFetched } = usePersonnel();
+  const { personnels, isFetched } = usePersonnel({
+    search: filterValue?.search || "",
+    role_id: filterValue?.select || "",
+  });
 
   const tableHeadContent = (
     <>
@@ -88,7 +94,8 @@ export default function PersonnelPage() {
         </div>
       </header>
 
-      <main className="bg-base-100 p-4  rounded-2xl">
+      <main className="bg-base-100 p-4 grid grid-cols-1 gap-4  rounded-2xl">
+        <PersonnelFilter filterResults={(result) => setFilterValue(result)} />
         <div className="overflow-x-auto border rounded-2xl bg-base-100">
           {isFetched && personnels && personnels.length > 0 && (
             <Table

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 
 import Table from "../../../shared/components/organisms/Table";
 import {
@@ -20,6 +20,9 @@ import Button from "../../../shared/components/atoms/Button";
 import CreateSchedules from "../../../features/schedules/components/CreateSchedules";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import List from "../../../shared/components/atoms/List";
+import TableFilter, {
+  FilterValues,
+} from "../../../shared/components/organisms/TableFilter";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
@@ -28,6 +31,9 @@ export default function CaseHistoryPage() {
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const scheduleDialog = useRef<HTMLDialogElement>(null);
+  const [enteredValues, setEnteredValues] = useState<FilterValues>({
+    search: "",
+  });
 
   const [tableHead] = useState([
     "Tanggal",
@@ -117,6 +123,10 @@ export default function CaseHistoryPage() {
     }),
   };
 
+  function handleSubmitFilter(filterValues: FilterValues) {
+    console.log(filterValues);
+  }
+
   const tableHeadContent = (
     <>
       {tableHead.map((item) => (
@@ -187,7 +197,25 @@ export default function CaseHistoryPage() {
           </Button>
         </div>
       </header>
-      <main>
+      <main className="bg-base-100 p-4 grid grid-cols-1 gap-4  rounded-2xl">
+        <TableFilter
+          onSubmit={handleSubmitFilter}
+          searchInput={{
+            useSearchInput: true,
+            label: "Cari Perkara",
+            placeholder: "Masukan nomor perkara atau pihak terkait",
+            value: enteredValues.search as string,
+            onChange: (event: ChangeEvent<HTMLInputElement>) => {
+              setEnteredValues((prev) => {
+                return {
+                  ...prev,
+                  search: event.target.value,
+                };
+              });
+            },
+          }}
+        />
+
         <div className="overflow-x-auto border rounded-2xl bg-base-100">
           <Table attributes={TableAttributes} tableHead={tableHeadContent}>
             {tableBodyContent}

@@ -16,4 +16,5 @@ export interface IPersonnelDataTable {
 
 export interface IQueryPersonnelParams {
   search?: string;
+  role_id?: string;
 }
