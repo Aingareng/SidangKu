@@ -1,6 +1,6 @@
 export interface IPersonnelPayload {
   name: string;
-  role: number;
+  role_id: string;
   email?: string;
   phone: string;
   password: string;

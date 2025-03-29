@@ -10,7 +10,7 @@ interface IProps {
 export default function PersonnelFilter({ filterResults }: IProps) {
   const [enteredValues, setEnteredValues] = useState<FilterValues>({
     search: "",
-    select: "0",
+    select: "",
   });
 
   function handleSubmitFilter(filterValues: FilterValues) {
@@ -38,7 +38,7 @@ export default function PersonnelFilter({ filterResults }: IProps) {
         useSelectInput: true,
         label: "Jabatan",
         options: [
-          { label: "Pilih Jabaran/Peran", value: "0" },
+          { label: "Pilih Jabaran/Peran", value: "" },
           { label: "Hakim", value: "1" },
           { label: "Panitera", value: "2" },
           { label: "Panitera Pengganti", value: "3" },
