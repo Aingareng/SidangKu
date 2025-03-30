@@ -23,6 +23,8 @@ import List from "../../../shared/components/atoms/List";
 import TableFilter, {
   FilterValues,
 } from "../../../shared/components/organisms/TableFilter";
+import useSchedules from "../../../features/schedules/hooks/useSchedules";
+import EmptyTableData from "../../../shared/components/molecules/EmptyTable";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
@@ -34,6 +36,8 @@ export default function CaseHistoryPage() {
   const [enteredValues, setEnteredValues] = useState<FilterValues>({
     search: "",
   });
+
+  const { schedules } = useSchedules();
 
   const [tableHead] = useState([
     "Tanggal",
@@ -47,44 +51,7 @@ export default function CaseHistoryPage() {
     "Ruang Sidang",
     "",
   ]);
-  const [tableBody] = useState([
-    {
-      no: 1,
-      tanggal: "2025-03-08",
-      nomorPerkara: "123/PDT.G/2025/PN.JKT",
-      agenda: "Sidang Perdana",
-      penggugat: "Budi Santoso",
-      tergugat: "PT. Maju Jaya",
-      majelisHakim: "Hakim A, Hakim B, Hakim C",
-      paniteraPengganti: "Siti Rohmah",
-      nomorAntrian: 5,
-      ruangSidang: 1,
-    },
-    {
-      no: 2,
-      tanggal: "2025-03-09",
-      nomorPerkara: "124/PDT.G/2025/PN.JKT",
-      agenda: "Pemeriksaan Saksi",
-      penggugat: "Andi Wijaya",
-      tergugat: "CV. Sejahtera",
-      majelisHakim: "Hakim X, Hakim Y, Hakim Z",
-      paniteraPengganti: "Doni Pratama",
-      nomorAntrian: 3,
-      ruangSidang: 1,
-    },
-    {
-      no: 3,
-      tanggal: "2025-03-10",
-      nomorPerkara: "125/PDT.G/2025/PN.JKT",
-      agenda: "Putusan Sidang",
-      penggugat: "Siti Aminah",
-      tergugat: "PT. Karya Abadi",
-      majelisHakim: "Hakim D, Hakim E, Hakim F",
-      paniteraPengganti: "Rina Lestari",
-      nomorAntrian: 7,
-      ruangSidang: 1,
-    },
-  ]);
+  const [tableBody] = useState(schedules || []);
 
   function handleAction(id: number, key: string) {
     if (key === "SET_HEARING" && id) {
@@ -137,25 +104,25 @@ export default function CaseHistoryPage() {
 
   const tableBodyContent = (
     <>
-      {tableBody.map((item) => (
-        <tr key={item.no}>
-          <th>{item.no}</th>
-          <td>{item.tanggal}</td>
-          <td>{item.nomorPerkara}</td>
+      {tableBody.map((item, idx) => (
+        <tr key={item.id}>
+          <th>{idx + 1}</th>
+          <td>{item.scheduled_date}</td>
+          <td>{item.case_number}</td>
           <td>{item.agenda}</td>
-          <td>{item.penggugat}</td>
-          <td>{item.tergugat}</td>
-          <td>{item.majelisHakim}</td>
-          <td>{item.paniteraPengganti}</td>
-          <td>{item.nomorAntrian}</td>
-          <td>{item.ruangSidang}</td>
+          <td>{item.plaintiff}</td>
+          <td>{item.defendant}</td>
+          <td>{item.judge}</td>
+          <td>{item.panitera}</td>
+          <td>{item.queue_number}</td>
+          <td>{item.location}</td>
           <th>
-            <Dropdown itemIndex={item.no}>
+            <Dropdown itemIndex={item.id}>
               <List>
                 <Button
                   attributes={{
                     type: "button",
-                    onClick: () => handleAction(item.no, "SET_HEARING"),
+                    onClick: () => handleAction(item.id, "SET_HEARING"),
                     className: "w-full text-left",
                   }}
                 >
@@ -167,7 +134,7 @@ export default function CaseHistoryPage() {
                 <Button
                   attributes={{
                     type: "button",
-                    onClick: () => handleAction(item.no, "DELETE"),
+                    onClick: () => handleAction(item.id, "DELETE"),
                     className: "w-full text-left text-red-600",
                   }}
                 >
@@ -200,6 +167,12 @@ export default function CaseHistoryPage() {
       <main className="bg-base-100 p-4 grid grid-cols-1 gap-4  rounded-2xl">
         <TableFilter
           onSubmit={handleSubmitFilter}
+          onReset={() =>
+            setEnteredValues({
+              search: "",
+            })
+          }
+          className="flex items-end"
           searchInput={{
             useSearchInput: true,
             label: "Cari Perkara",
@@ -217,9 +190,13 @@ export default function CaseHistoryPage() {
         />
 
         <div className="overflow-x-auto border rounded-2xl bg-base-100">
-          <Table attributes={TableAttributes} tableHead={tableHeadContent}>
-            {tableBodyContent}
-          </Table>
+          {tableBody && tableBody.length === 0 ? (
+            <EmptyTableData />
+          ) : (
+            <Table attributes={TableAttributes} tableHead={tableHeadContent}>
+              {tableBodyContent}
+            </Table>
+          )}
         </div>
       </main>
 

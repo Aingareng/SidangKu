@@ -14,6 +14,7 @@ export default function usePersonnel(params?: IQueryPersonnelParams) {
     isLoading,
     isPending,
   } = useQuery({
+    initialData: [],
     queryKey: ["personnel", params],
     queryFn: () => get(params as IQueryPersonnelParams),
   });

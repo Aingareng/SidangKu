@@ -4,6 +4,7 @@ import Label from "../atoms/Label";
 import Form from "../molecules/Form";
 import Select from "../atoms/Select";
 import Button from "../atoms/Button";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 interface TextInputProps {
   useSearchInput: boolean;
@@ -39,6 +40,7 @@ interface IProps {
   selectInput?: SelectInputProps;
   periodInput?: PeriodInputProps;
   onSubmit?: (submitValue: FilterValues) => void;
+  onReset?: () => void;
 }
 
 export default function TableFilter({
@@ -47,6 +49,7 @@ export default function TableFilter({
   selectInput,
   periodInput,
   onSubmit,
+  onReset,
 }: IProps) {
   const handleApplyFilter = useCallback(() => {
     if (!onSubmit) return;
@@ -143,14 +146,30 @@ export default function TableFilter({
         </div>
       )}
 
-      <Button
-        attributes={{
-          type: "submit",
-          className: "btn btn-primary w-max  ml-3",
-        }}
-      >
-        Apply
-      </Button>
+      <div className="flex items-center ml-3 gap-2">
+        <Button
+          attributes={{
+            type: "submit",
+            className: "btn btn-primary btn-square",
+          }}
+        >
+          <Icon icon="material-symbols:search" width="24" height="24" />
+        </Button>
+
+        <Button
+          attributes={{
+            type: "reset",
+            className: "btn btn-primary btn-square",
+            onClick: onReset,
+          }}
+        >
+          <Icon
+            icon="material-symbols:refresh-rounded"
+            width="24"
+            height="24"
+          />
+        </Button>
+      </div>
     </Form>
   );
 }

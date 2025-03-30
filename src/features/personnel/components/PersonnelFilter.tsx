@@ -16,10 +16,17 @@ export default function PersonnelFilter({ filterResults }: IProps) {
   function handleSubmitFilter(filterValues: FilterValues) {
     filterResults(filterValues);
   }
+  function handleResetFilter() {
+    setEnteredValues({
+      search: "",
+      select: "",
+    });
+  }
   return (
     <TableFilter
       className="grid grid-cols-3 gap-2 items-end"
       onSubmit={handleSubmitFilter}
+      onReset={handleResetFilter}
       searchInput={{
         useSearchInput: true,
         label: "Cari Pihak",

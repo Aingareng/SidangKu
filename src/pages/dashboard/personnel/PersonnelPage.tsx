@@ -8,6 +8,7 @@ import usePersonnel from "../../../features/personnel/hooks/usePersonnel";
 import PersonnelFilter from "../../../features/personnel/components/PersonnelFilter";
 import { FilterValues } from "../../../shared/components/organisms/TableFilter";
 import CreatePersonnel from "../../../features/personnel/components/CreatePersonnel";
+import EmptyTableData from "../../../shared/components/molecules/EmptyTable";
 
 export default function PersonnelPage() {
   const tableHead = ["Nama", "Jabatan/Peran", "Aksi"];
@@ -62,12 +63,14 @@ export default function PersonnelPage() {
       <main className="bg-base-100 p-4 grid grid-cols-1 gap-4  rounded-2xl">
         <PersonnelFilter filterResults={(result) => setFilterValue(result)} />
         <div className="overflow-x-auto border rounded-2xl bg-base-100">
-          {isFetched && personnels && personnels.length > 0 && (
+          {isFetched && personnels && personnels.length === 0 ? (
+            <EmptyTableData />
+          ) : (
             <Table
               attributes={{ className: "table" }}
               tableHead={tableHeadContent}
             >
-              {personnels.map((item, index) => (
+              {personnels?.map((item, index) => (
                 <tr key={item.id}>
                   <th>{index + 1}</th>
                   <td>{item.name}</td>
@@ -75,7 +78,7 @@ export default function PersonnelPage() {
                   <th>
                     <Dropdown
                       itemIndex={item.id}
-                      tableLength={personnels.length}
+                      tableLength={personnels?.length}
                     >
                       <List>
                         <Button
