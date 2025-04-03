@@ -24,7 +24,7 @@ export default function PersonnelFilter({ filterResults }: IProps) {
   }
   return (
     <TableFilter
-      className="grid grid-cols-3 gap-2 items-end"
+      className="flex gap-3 items-end"
       onSubmit={handleSubmitFilter}
       onReset={handleResetFilter}
       searchInput={{

@@ -15,20 +15,21 @@ import Label from "../../../shared/components/atoms/Label";
 import Input from "../../../shared/components/atoms/Input";
 import Button from "../../../shared/components/atoms/Button";
 import MultipleAgenda from "./MultipleAgenda";
-import { log } from "../../../shared/utils/log";
 import MultiplePlaintiff from "./MultiplePlaintiff";
 import MultipleDefendant from "./MultipleDefendant";
 import MultipleJudges from "./MultipleJudges";
+import usePersonnel from "../../personnel/hooks/usePersonnel";
+import { IPersonnelDataTable } from "../../personnel/types/personnel";
 
 interface IProps {
   ref: ForwardedRef<HTMLDialogElement>;
 }
 
 export default function CreateSchedules({ ref }: IProps) {
-  log("<CreateSchedules/>", 2);
   ButtonAttributes.type = "submit";
 
   const [formData, setFormData] = useState<Record<string, unknown>>({});
+  const { personnels } = usePersonnel();
 
   function handleTextInputChange(event: ChangeEvent<HTMLInputElement>) {
     setFormData((prev) => {
@@ -40,8 +41,6 @@ export default function CreateSchedules({ ref }: IProps) {
   }
 
   const handleSetAgenda = useCallback((value: string[]) => {
-    console.log("🚀 ~ handleSetAgenda ~ value:", value);
-
     setFormData((prev) => {
       return {
         ...prev,
@@ -51,7 +50,6 @@ export default function CreateSchedules({ ref }: IProps) {
   }, []);
 
   const handleSetPlaintiff = useCallback((value: string[]) => {
-    console.log("🚀 ~ handleSetPlaintiff ~ value:", value);
     setFormData((prev) => {
       return {
         ...prev,
@@ -118,8 +116,14 @@ export default function CreateSchedules({ ref }: IProps) {
               />
             </Label>
             <MultipleAgenda onSendAgenda={handleSetAgenda} />
-            <MultiplePlaintiff onSendPlaintiff={handleSetPlaintiff} />
-            <MultipleDefendant onSendDefendant={handleSetDefendant} />
+            <MultiplePlaintiff
+              personnals={personnels as IPersonnelDataTable[]}
+              onSendPlaintiff={handleSetPlaintiff}
+            />
+            <MultipleDefendant
+              personnals={personnels as IPersonnelDataTable[]}
+              onSendDefendant={handleSetDefendant}
+            />
             <MultipleJudges onSendJudges={handleSetJudges} />
           </main>
           <footer className="flex items-center justify-end">

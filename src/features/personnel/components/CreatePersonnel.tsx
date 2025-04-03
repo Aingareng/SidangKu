@@ -13,11 +13,7 @@ const formSchema = z.object({
   name: z
     .string()
     .min(3, "Nama pihak minimal 3 karakter")
-    .max(20, "Nama pihak maksimal 20 karakter")
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Nama pihak hanya boleh mengandung huruf, angka, dan underscore"
-    ),
+    .max(20, "Nama pihak maksimal 20 karakter"),
   email: z.string().email("Email tidak valid"),
   phone: z
     .string()

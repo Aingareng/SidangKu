@@ -15,7 +15,7 @@ export async function create(payload: IPersonnelPayload) {
   }
 }
 
-export async function get(params: IQueryPersonnelParams) {
+export async function get(params?: IQueryPersonnelParams) {
   try {
     const response = await api.get<IApiResponse<IPersonnelDataTable[]>>(
       "/user",

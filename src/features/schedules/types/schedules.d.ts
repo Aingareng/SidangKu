@@ -9,12 +9,12 @@ export interface ISchedulesData {
   status?: TypeScheduleStatus;
   case_number: string;
   case_status: string;
-  agenda: string;
+  agendas: string[];
   user_name: string;
   role_name: string;
-  plaintiff: string[];
-  defendant: string[];
-  judge: string[];
+  plaintiffs: string[];
+  defendants: string[];
+  judges: string[];
   agenda: string[];
   panitera: string;
 }

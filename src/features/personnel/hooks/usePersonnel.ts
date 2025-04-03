@@ -15,8 +15,14 @@ export default function usePersonnel(params?: IQueryPersonnelParams) {
     isPending,
   } = useQuery({
     initialData: [],
-    queryKey: ["personnel", params],
-    queryFn: () => get(params as IQueryPersonnelParams),
+    queryKey:
+      params?.search || params?.role_id ? ["personnel", params] : ["personnel"],
+    queryFn: () => {
+      if (params?.search || params?.role_id) {
+        return get(params as IQueryPersonnelParams);
+      }
+      return get();
+    },
   });
 
   const createMutation = useMutation({

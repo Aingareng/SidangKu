@@ -109,10 +109,26 @@ export default function CaseHistoryPage() {
           <th>{idx + 1}</th>
           <td>{item.scheduled_date}</td>
           <td>{item.case_number}</td>
-          <td>{item.agenda}</td>
-          <td>{item.plaintiff}</td>
-          <td>{item.defendant}</td>
-          <td>{item.judge}</td>
+          <td>
+            {item.agendas.map((agenda) => (
+              <p key={agenda}>{agenda}</p>
+            ))}
+          </td>
+          <td>
+            {item.plaintiffs.map((plaintiff) => (
+              <p key={plaintiff}>{plaintiff}</p>
+            ))}
+          </td>
+          <td>
+            {item.defendants.map((defendant) => (
+              <p key={defendant}>{defendant}</p>
+            ))}
+          </td>
+          <td>
+            {item.judges.map((judge) => (
+              <p key={judge}>{judge}</p>
+            ))}
+          </td>
           <td>{item.panitera}</td>
           <td>{item.queue_number}</td>
           <td>{item.location}</td>

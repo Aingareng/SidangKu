@@ -9,6 +9,7 @@ import PersonnelFilter from "../../../features/personnel/components/PersonnelFil
 import { FilterValues } from "../../../shared/components/organisms/TableFilter";
 import CreatePersonnel from "../../../features/personnel/components/CreatePersonnel";
 import EmptyTableData from "../../../shared/components/molecules/EmptyTable";
+import { formatString } from "../../../shared/utils/stringFormatter";
 
 export default function PersonnelPage() {
   const tableHead = ["Nama", "Jabatan/Peran", "Aksi"];
@@ -73,8 +74,8 @@ export default function PersonnelPage() {
               {personnels?.map((item, index) => (
                 <tr key={item.id}>
                   <th>{index + 1}</th>
-                  <td>{item.name}</td>
-                  <td>{item.role_name}</td>
+                  <td>{formatString(item.name, "capitalize")}</td>
+                  <td>{formatString(item.role_name, "capitalize")}</td>
                   <th>
                     <Dropdown
                       itemIndex={item.id}
