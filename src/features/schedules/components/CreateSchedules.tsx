@@ -26,7 +26,6 @@ export default function CreateSchedules({ ref }: IProps) {
 
     const data = localStorageUtils.get<ISchedulePayload>("newSchedule");
     if (data) {
-      console.log(data);
       createSchedule(data);
     } else {
       console.error("No schedule data found in localStorage.");
