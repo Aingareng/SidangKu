@@ -1,14 +1,16 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import Button from "../../../shared/components/atoms/Button";
 import Input from "../../../shared/components/atoms/Input";
 import Label from "../../../shared/components/atoms/Label";
 import { Icon } from "@iconify/react/dist/iconify.js";
-// import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
-// import { ISchedulePayload } from "../types/schedules";
 import localStorageUtils from "../../../shared/utils/localStorage";
 import { ISchedulePayload } from "../types/schedules";
 
-function MultipleAgenda() {
+interface IProps {
+  errorMessage?: ReactNode;
+}
+
+function MultipleAgenda({ errorMessage }: IProps) {
   const [fieldAgenda, setFieldAgenda] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([]);
   // const [, setValue] = useLocalStorage("newSchedule");
@@ -25,10 +27,6 @@ function MultipleAgenda() {
       return newValues;
     });
   }
-
-  // const handleAddField = useCallback(() => {
-  //   setFieldAgenda((prev) => [...prev, prev.length + 1]);
-  // }, []);
 
   function handleAddField() {
     setFieldAgenda((prev) => [...prev, prev.length + 1]);
@@ -60,7 +58,12 @@ function MultipleAgenda() {
   return (
     <>
       {fieldAgenda.map((item, index) => (
-        <Label key={item} labelType="form-control" leftLabel={`Agenda ${item}`}>
+        <Label
+          key={item}
+          labelType="form-control"
+          leftLabel={`Agenda ${item}`}
+          bottomLeftLabel={errorMessage}
+        >
           <Input
             attributes={{
               type: "text",

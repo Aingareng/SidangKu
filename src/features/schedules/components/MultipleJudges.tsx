@@ -1,4 +1,4 @@
-import { ChangeEvent, memo, useEffect, useState } from "react";
+import { ChangeEvent, memo, ReactNode, useEffect, useState } from "react";
 import Button from "../../../shared/components/atoms/Button";
 
 import Label from "../../../shared/components/atoms/Label";
@@ -9,7 +9,11 @@ import localStorageUtils from "../../../shared/utils/localStorage";
 import { ISchedulePayload } from "../types/schedules";
 import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 
-function MultipleJudges() {
+interface IProps {
+  errorMessage?: ReactNode;
+}
+
+function MultipleJudges({ errorMessage }: IProps) {
   const [fieldJudges, setFieldJudges] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([""]);
   const [personnals] = useLocalStorage("personnels", []);
@@ -63,7 +67,12 @@ function MultipleJudges() {
   return (
     <>
       {fieldJudges.map((item, index) => (
-        <Label key={item} labelType="form-control" leftLabel={`Hakim ${item}`}>
+        <Label
+          key={item}
+          labelType="form-control"
+          leftLabel={`Hakim ${item}`}
+          bottomLeftLabel={errorMessage}
+        >
           <Select
             attr={{
               className: "select select-bordered w-full ",

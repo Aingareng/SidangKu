@@ -1,10 +1,14 @@
 import Label from "../../../shared/components/atoms/Label";
 import Input from "../../../shared/components/atoms/Input";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, ReactNode, useEffect, useState } from "react";
 import localStorageUtils from "../../../shared/utils/localStorage";
 import { ISchedulePayload } from "../types/schedules";
 
-export default function CaseNumberInput() {
+interface IProps {
+  errorMessage?: ReactNode;
+}
+
+export default function CaseNumberInput({ errorMessage }: IProps) {
   const [enteredValue, setEnteredValue] = useState<string>();
   function handleTextInputChange(event: ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
@@ -35,7 +39,11 @@ export default function CaseNumberInput() {
   }, [enteredValue]);
 
   return (
-    <Label labelType="form-control" leftLabel="Nomor Perkara">
+    <Label
+      labelType="form-control"
+      leftLabel="Nomor Perkara"
+      bottomLeftLabel={errorMessage}
+    >
       <Input
         attributes={{
           type: "text",

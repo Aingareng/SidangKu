@@ -1,4 +1,4 @@
-import { ChangeEvent, memo, useEffect, useState } from "react";
+import { ChangeEvent, memo, ReactNode, useEffect, useState } from "react";
 import Button from "../../../shared/components/atoms/Button";
 import Label from "../../../shared/components/atoms/Label";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -8,12 +8,11 @@ import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 import localStorageUtils from "../../../shared/utils/localStorage";
 import { ISchedulePayload } from "../types/schedules";
 
-// interface IProps {
-//   onSendPlaintiff?: (plaintiff: string[]) => void;
-//   personnals?: IPersonnelDataTable[];
-// }
+interface IProps {
+  errorMessage?: ReactNode;
+}
 
-function MultiplePlaintiff() {
+function MultiplePlaintiff({ errorMessage }: IProps) {
   const [fieldPlaintiff, setFieldPlaintiff] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([""]);
   const [personnals] = useLocalStorage("personnels", []);
@@ -71,6 +70,7 @@ function MultiplePlaintiff() {
           key={item}
           labelType="form-control"
           leftLabel={`Penggugat ${item}`}
+          bottomLeftLabel={errorMessage}
         >
           <Select
             attr={{

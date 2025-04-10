@@ -1,4 +1,4 @@
-import { ChangeEvent, memo, useEffect, useState } from "react";
+import { ChangeEvent, memo, ReactNode, useEffect, useState } from "react";
 import Button from "../../../shared/components/atoms/Button";
 import Label from "../../../shared/components/atoms/Label";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -9,7 +9,11 @@ import { ISchedulePayload } from "../types/schedules";
 import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 import { IPersonnelDataTable } from "../../personnel/types/personnel";
 
-function MultipleDefendant() {
+interface IProps {
+  errorMessage?: ReactNode;
+}
+
+function MultipleDefendant({ errorMessage }: IProps) {
   const [fieldDefendant, setFieldDefendant] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([""]);
   const [personnals] = useLocalStorage("personnels", []);
@@ -67,6 +71,7 @@ function MultipleDefendant() {
           key={item}
           labelType="form-control"
           leftLabel={`Tergugat ${item}`}
+          bottomLeftLabel={errorMessage}
         >
           <Select
             attr={{
