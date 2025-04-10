@@ -27,6 +27,7 @@ import useSchedules from "../../../features/schedules/hooks/useSchedules";
 import EmptyTableData from "../../../shared/components/molecules/EmptyTable";
 import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 import usePersonnel from "../../../features/personnel/hooks/usePersonnel";
+import formatTangal from "../../../shared/utils/formatTanggal";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
@@ -39,7 +40,7 @@ export default function CaseHistoryPage() {
     search: "",
   });
 
-  const { schedules, isFetched } = useSchedules();
+  const { schedules, isFetched, deleteSchedule } = useSchedules();
   const { personnels } = usePersonnel();
   const [, setvalue] = useLocalStorage("personnels", []);
 
@@ -66,6 +67,7 @@ export default function CaseHistoryPage() {
     }
     if (key === "DELETE" && id) {
       console.log("Delete item with id", id);
+      deleteSchedule(id.toString());
     }
   }
   function handleAddSchedule() {
@@ -115,7 +117,7 @@ export default function CaseHistoryPage() {
         schedules.map((item, idx) => (
           <tr key={item.id}>
             <th>{idx + 1}</th>
-            <td>{item.scheduled_date}</td>
+            <td>{formatTangal(item.scheduled_date)}</td>
             <td>{item.case_number}</td>
             <td>{item.agenda}</td>
             <td>

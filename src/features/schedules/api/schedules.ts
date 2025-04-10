@@ -31,3 +31,25 @@ export async function get(params: IQuerySchedulesParams) {
     console.error(error);
   }
 }
+
+export async function destroy(id: string) {
+  try {
+    const response = await api.delete<IApiResponse<null>>(`/schedules/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function update(id: number, payload: ISchedulePayload) {
+  try {
+    const response = await api.put<IApiResponse<ISchedulePayload>>(
+      `/schedules/${id}`,
+      payload
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
