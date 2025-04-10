@@ -1,25 +1,17 @@
-import {
-  ChangeEvent,
-  ForwardedRef,
-  useActionState,
-  useCallback,
-  useState,
-} from "react";
-import {
-  ButtonAttributes,
-  FormAttributes,
-} from "../../../shared/libs/elementAttributes";
+import { ForwardedRef } from "react";
+import { ButtonAttributes } from "../../../shared/libs/elementAttributes";
 import Form from "../../../shared/components/molecules/Form";
 import Modal from "../../../shared/components/organisms/Modal";
-import Label from "../../../shared/components/atoms/Label";
-import Input from "../../../shared/components/atoms/Input";
 import Button from "../../../shared/components/atoms/Button";
 import MultipleAgenda from "./MultipleAgenda";
 import MultiplePlaintiff from "./MultiplePlaintiff";
+import localStorageUtils from "../../../shared/utils/localStorage";
+import { ISchedulePayload } from "../types/schedules";
 import MultipleDefendant from "./MultipleDefendant";
 import MultipleJudges from "./MultipleJudges";
-import usePersonnel from "../../personnel/hooks/usePersonnel";
-import { IPersonnelDataTable } from "../../personnel/types/personnel";
+import CaseNumberInput from "./CaseNumberInput";
+import PaniteraInput from "./PaniteraInput";
+import useSchedules from "../hooks/useSchedules";
 
 interface IProps {
   ref: ForwardedRef<HTMLDialogElement>;
@@ -27,106 +19,35 @@ interface IProps {
 
 export default function CreateSchedules({ ref }: IProps) {
   ButtonAttributes.type = "submit";
+  const { createSchedule } = useSchedules();
 
-  const [formData, setFormData] = useState<Record<string, unknown>>({});
-  const { personnels } = usePersonnel();
+  function handleAddSchedule(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-  function handleTextInputChange(event: ChangeEvent<HTMLInputElement>) {
-    setFormData((prev) => {
-      return {
-        ...prev,
-        [event.target.name]: event.target.value,
-      };
-    });
+    const data = localStorageUtils.get<ISchedulePayload>("newSchedule");
+    if (data) {
+      console.log(data);
+      createSchedule(data);
+    } else {
+      console.error("No schedule data found in localStorage.");
+    }
   }
-
-  const handleSetAgenda = useCallback((value: string[]) => {
-    setFormData((prev) => {
-      return {
-        ...prev,
-        agenda: value,
-      };
-    });
-  }, []);
-
-  const handleSetPlaintiff = useCallback((value: string[]) => {
-    setFormData((prev) => {
-      return {
-        ...prev,
-        plaintiff: value,
-      };
-    });
-  }, []);
-
-  const handleSetDefendant = useCallback((value: string[]) => {
-    setFormData((prev) => {
-      return {
-        ...prev,
-        defendant: value,
-      };
-    });
-  }, []);
-
-  const handleSetJudges = useCallback((value: string[]) => {
-    setFormData((prev) => {
-      return {
-        ...prev,
-        judges: value,
-      };
-    });
-  }, []);
-
-  function handleAddSchedule() {
-    console.log(formData);
-  }
-
-  const [, formAction] = useActionState(handleAddSchedule, null);
-
-  FormAttributes.action = formAction;
 
   return (
     <Modal ref={ref}>
       {/* w-8/12  */}
       <div className="grid grid-cols-1 gap-4  w-full ">
         <h1 className="text-2xl font-bold text-center">Tambah Jadwal</h1>
-        <Form attributes={FormAttributes}>
+        <Form attributes={{ onSubmit: (e) => handleAddSchedule(e) }}>
           <main className="grid grid-cols-1 gap-3">
-            <Label labelType="form-control" leftLabel="Nomor Perkara">
-              <Input
-                attributes={{
-                  type: "text",
-                  name: "case-number",
-                  placeholder: "Cth : 123/Pdt.G/2025/PN Lbo",
-                  className: "input input-bordered w-full",
-                  defaultValue: formData["case-number"] as string,
-                  onChange: (e) => handleTextInputChange(e),
-                }}
-              />
-            </Label>
-            <Label labelType="form-control" leftLabel="Panitera">
-              <Input
-                attributes={{
-                  type: "text",
-                  name: "registrar",
-                  placeholder: "Masukan Nama Panitera",
-                  className: "input input-bordered w-full",
-                  defaultValue: formData["registrar"] as string,
-                  onChange: (e) => handleTextInputChange(e),
-                }}
-              />
-            </Label>
-            <MultipleAgenda onSendAgenda={handleSetAgenda} />
-            <MultiplePlaintiff
-              personnals={personnels as IPersonnelDataTable[]}
-              onSendPlaintiff={handleSetPlaintiff}
-            />
-            <MultipleDefendant
-              personnals={personnels as IPersonnelDataTable[]}
-              onSendDefendant={handleSetDefendant}
-            />
-            <MultipleJudges onSendJudges={handleSetJudges} />
+            <CaseNumberInput />
+            <PaniteraInput />
+            <MultipleAgenda />
+            <MultiplePlaintiff />
+            <MultipleDefendant />
+            <MultipleJudges />
           </main>
-          <footer className="flex items-center justify-end">
+          <footer className="flex items-center justify-end mt-3">
             <Button attributes={ButtonAttributes}>Tentukan</Button>
           </footer>
         </Form>

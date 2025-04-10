@@ -1,8 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { IQuerySchedulesParams } from "../types/schedules";
-import { get } from "../api/schedules";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { IQuerySchedulesParams, ISchedulePayload } from "../types/schedules";
+import { create, get } from "../api/schedules";
 
 export default function useSchedules(params?: IQuerySchedulesParams) {
+  const queryClient = useQueryClient();
+
   const {
     data: schedules,
     error,
@@ -12,8 +14,16 @@ export default function useSchedules(params?: IQuerySchedulesParams) {
     isLoading,
     isPending,
   } = useQuery({
+    initialData: [],
     queryKey: ["schedules", params],
     queryFn: () => get(params as IQuerySchedulesParams),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (payload: ISchedulePayload) => create(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
   });
 
   return {
@@ -24,5 +34,6 @@ export default function useSchedules(params?: IQuerySchedulesParams) {
     isFetching,
     isLoading,
     isPending,
+    createSchedule: createMutation.mutate,
   };
 }

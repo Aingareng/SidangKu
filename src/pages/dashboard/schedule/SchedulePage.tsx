@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 import Table from "../../../shared/components/organisms/Table";
 import {
@@ -25,6 +25,8 @@ import TableFilter, {
 } from "../../../shared/components/organisms/TableFilter";
 import useSchedules from "../../../features/schedules/hooks/useSchedules";
 import EmptyTableData from "../../../shared/components/molecules/EmptyTable";
+import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
+import usePersonnel from "../../../features/personnel/hooks/usePersonnel";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
@@ -37,7 +39,13 @@ export default function CaseHistoryPage() {
     search: "",
   });
 
-  const { schedules } = useSchedules();
+  const { schedules, isFetched } = useSchedules();
+  const { personnels } = usePersonnel();
+  const [, setvalue] = useLocalStorage("personnels", []);
+
+  useEffect(() => {
+    setvalue(personnels);
+  }, [personnels, setvalue]);
 
   const [tableHead] = useState([
     "Tanggal",
@@ -51,7 +59,6 @@ export default function CaseHistoryPage() {
     "Ruang Sidang",
     "",
   ]);
-  const [tableBody] = useState(schedules || []);
 
   function handleAction(id: number, key: string) {
     if (key === "SET_HEARING" && id) {
@@ -104,64 +111,65 @@ export default function CaseHistoryPage() {
 
   const tableBodyContent = (
     <>
-      {tableBody.map((item, idx) => (
-        <tr key={item.id}>
-          <th>{idx + 1}</th>
-          <td>{item.scheduled_date}</td>
-          <td>{item.case_number}</td>
-          <td>
-            {item.agendas.map((agenda) => (
-              <p key={agenda}>{agenda}</p>
-            ))}
-          </td>
-          <td>
-            {item.plaintiffs.map((plaintiff) => (
-              <p key={plaintiff}>{plaintiff}</p>
-            ))}
-          </td>
-          <td>
-            {item.defendants.map((defendant) => (
-              <p key={defendant}>{defendant}</p>
-            ))}
-          </td>
-          <td>
-            {item.judges.map((judge) => (
-              <p key={judge}>{judge}</p>
-            ))}
-          </td>
-          <td>{item.panitera}</td>
-          <td>{item.queue_number}</td>
-          <td>{item.location}</td>
-          <th>
-            <Dropdown itemIndex={item.id}>
-              <List>
-                <Button
-                  attributes={{
-                    type: "button",
-                    onClick: () => handleAction(item.id, "SET_HEARING"),
-                    className: "w-full text-left",
-                  }}
-                >
-                  <Icon icon="mdi:gavel" className="mr-2" />
-                  Tentukan Sidang
-                </Button>
-              </List>
-              <List>
-                <Button
-                  attributes={{
-                    type: "button",
-                    onClick: () => handleAction(item.id, "DELETE"),
-                    className: "w-full text-left text-red-600",
-                  }}
-                >
-                  <Icon icon="mdi:trash-can-outline" className="mr-2" />
-                  Hapus
-                </Button>
-              </List>
-            </Dropdown>
-          </th>
-        </tr>
-      ))}
+      {schedules &&
+        schedules.map((item, idx) => (
+          <tr key={item.id}>
+            <th>{idx + 1}</th>
+            <td>{item.scheduled_date}</td>
+            <td>{item.case_number}</td>
+            <td>{item.agenda}</td>
+            <td>
+              {item.plaintiffs
+                ? item.plaintiffs.map((plaintiffs) => (
+                    <p key={plaintiffs}>{plaintiffs}</p>
+                  ))
+                : []}
+            </td>
+            <td>
+              {item.defendants
+                ? item.defendants.map((defendant) => (
+                    <p key={defendant}>{defendant}</p>
+                  ))
+                : []}
+            </td>
+            <td>
+              {item.judges
+                ? item.judges.map((judge) => <p key={judge}>{judge}</p>)
+                : []}
+            </td>
+            <td>{item.registrar}</td>
+            <td>{item.queue_number}</td>
+            <td>{item.location}</td>
+            <th>
+              <Dropdown itemIndex={item.id}>
+                <List>
+                  <Button
+                    attributes={{
+                      type: "button",
+                      onClick: () => handleAction(item.id, "SET_HEARING"),
+                      className: "w-full text-left",
+                    }}
+                  >
+                    <Icon icon="mdi:gavel" className="mr-2" />
+                    Tentukan Sidang
+                  </Button>
+                </List>
+                <List>
+                  <Button
+                    attributes={{
+                      type: "button",
+                      onClick: () => handleAction(item.id, "DELETE"),
+                      className: "w-full text-left text-red-600",
+                    }}
+                  >
+                    <Icon icon="mdi:trash-can-outline" className="mr-2" />
+                    Hapus
+                  </Button>
+                </List>
+              </Dropdown>
+            </th>
+          </tr>
+        ))}
     </>
   );
 
@@ -206,7 +214,7 @@ export default function CaseHistoryPage() {
         />
 
         <div className="overflow-x-auto border rounded-2xl bg-base-100">
-          {tableBody && tableBody.length === 0 ? (
+          {isFetched && schedules && schedules.length === 0 ? (
             <EmptyTableData />
           ) : (
             <Table attributes={TableAttributes} tableHead={tableHeadContent}>

@@ -4,15 +4,19 @@ import Label from "../../../shared/components/atoms/Label";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Select from "../../../shared/components/atoms/Select";
 import { IPersonnelDataTable } from "../../personnel/types/personnel";
+import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
+import localStorageUtils from "../../../shared/utils/localStorage";
+import { ISchedulePayload } from "../types/schedules";
 
-interface IProps {
-  onSendPlaintiff: (plaintiff: string[]) => void;
-  personnals: IPersonnelDataTable[];
-}
+// interface IProps {
+//   onSendPlaintiff?: (plaintiff: string[]) => void;
+//   personnals?: IPersonnelDataTable[];
+// }
 
-function MultiplePlaintiff({ onSendPlaintiff, personnals }: IProps) {
+function MultiplePlaintiff() {
   const [fieldPlaintiff, setFieldPlaintiff] = useState([1]);
-  const [enteredValue, setEnteredValue] = useState<string[]>(["none"]);
+  const [enteredValue, setEnteredValue] = useState<string[]>([""]);
+  const [personnals] = useLocalStorage("personnels", []);
 
   function handleSelectInputChange(
     event: ChangeEvent<HTMLSelectElement>,
@@ -29,23 +33,36 @@ function MultiplePlaintiff({ onSendPlaintiff, personnals }: IProps) {
 
   function handleAddField() {
     setFieldPlaintiff((prev) => [...prev, prev.length + 1]);
-    setEnteredValue((prev) => [...prev, "none"]);
+    setEnteredValue((prev) => [...prev, ""]);
   }
 
   const plaintiffs = personnals.filter(
-    (item) => item.role_name === "penggugat"
+    (item: IPersonnelDataTable) => item.role_name.toLowerCase() === "penggugat"
   );
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const filteredValues = enteredValue.filter((value) => value !== "none");
-      onSendPlaintiff(filteredValues);
+      const filteredValues = enteredValue.filter((value) => value !== "");
+
+      const existKey = localStorageUtils.has("newSchedule");
+
+      if (existKey) {
+        const data = localStorageUtils.get<ISchedulePayload>("newSchedule");
+        localStorageUtils.set("newSchedule", {
+          ...data,
+          plaintiff: filteredValues || "",
+        });
+      } else {
+        localStorageUtils.set("newSchedule", {
+          plaintiff: filteredValues || "",
+        });
+      }
     }, 1000);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [enteredValue, onSendPlaintiff]);
+  }, [enteredValue]);
 
   return (
     <>
@@ -58,16 +75,16 @@ function MultiplePlaintiff({ onSendPlaintiff, personnals }: IProps) {
           <Select
             attr={{
               className: "select select-bordered w-full",
-              value: enteredValue[index] || "none",
+              value: enteredValue[index] || "",
               onChange: (e) => handleSelectInputChange(e, index),
             }}
           >
-            <option value="none" disabled>
+            <option value="" disabled>
               {" "}
               Pilih satu
             </option>
-            {plaintiffs.map((item) => (
-              <option key={item.id} value={item.name}>
+            {plaintiffs.map((item: IPersonnelDataTable, index: number) => (
+              <option key={index + 1} value={item.id}>
                 {item.name}
               </option>
             ))}
@@ -79,7 +96,7 @@ function MultiplePlaintiff({ onSendPlaintiff, personnals }: IProps) {
         attributes={{
           className: "btn btn-primary btn-outline btn-sm",
           onClick: handleAddField,
-          disabled: plaintiffs.length === 1,
+          disabled: plaintiffs.length <= 1,
         }}
       >
         <Icon icon="material-symbols:add-2-rounded" width="24" height="24" />

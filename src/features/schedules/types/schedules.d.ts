@@ -9,14 +9,23 @@ export interface ISchedulesData {
   status?: TypeScheduleStatus;
   case_number: string;
   case_status: string;
-  agendas: string[];
+  agendas: string;
   user_name: string;
   role_name: string;
   plaintiffs: string[];
   defendants: string[];
   judges: string[];
   agenda: string[];
-  panitera: string;
+  registrar: string;
+}
+
+export interface ISchedulePayload {
+  case_number: string;
+  plaintiff: string[];
+  defendant: string[];
+  case_detail: string[];
+  judges: string[];
+  registrar: string;
 }
 
 export interface IQuerySchedulesParams {

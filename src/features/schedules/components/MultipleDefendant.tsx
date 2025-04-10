@@ -2,17 +2,17 @@ import { ChangeEvent, memo, useEffect, useState } from "react";
 import Button from "../../../shared/components/atoms/Button";
 import Label from "../../../shared/components/atoms/Label";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { IPersonnelDataTable } from "../../personnel/types/personnel";
+
 import Select from "../../../shared/components/atoms/Select";
+import localStorageUtils from "../../../shared/utils/localStorage";
+import { ISchedulePayload } from "../types/schedules";
+import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
+import { IPersonnelDataTable } from "../../personnel/types/personnel";
 
-interface IProps {
-  onSendDefendant: (plaintiff: string[]) => void;
-  personnals: IPersonnelDataTable[];
-}
-
-function MultipleDefendant({ onSendDefendant, personnals }: IProps) {
+function MultipleDefendant() {
   const [fieldDefendant, setFieldDefendant] = useState([1]);
-  const [enteredValue, setEnteredValue] = useState<string[]>(["none"]);
+  const [enteredValue, setEnteredValue] = useState<string[]>([""]);
+  const [personnals] = useLocalStorage("personnels", []);
 
   function handleSelectInputChange(
     event: ChangeEvent<HTMLSelectElement>,
@@ -29,22 +29,36 @@ function MultipleDefendant({ onSendDefendant, personnals }: IProps) {
 
   function handleAddField() {
     setFieldDefendant((prev) => [...prev, prev.length + 1]);
-    setEnteredValue((prev) => [...prev, "none"]);
+    setEnteredValue((prev) => [...prev, ""]);
   }
 
-  const defendants = personnals.filter((item) => item.role_name === "tergugat");
+  const defendants = personnals.filter(
+    (item: IPersonnelDataTable) => item.role_name.toLowerCase() === "tergugat"
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const filteredValues = enteredValue.filter((value) => value !== "none");
+      const filteredValues = enteredValue.filter((value) => value !== "");
 
-      onSendDefendant(filteredValues);
+      const existKey = localStorageUtils.has("newSchedule");
+
+      if (existKey) {
+        const data = localStorageUtils.get<ISchedulePayload>("newSchedule");
+        localStorageUtils.set("newSchedule", {
+          ...data,
+          defendant: filteredValues || "",
+        });
+      } else {
+        localStorageUtils.set("newSchedule", {
+          defendant: filteredValues || "",
+        });
+      }
     }, 1000);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [enteredValue, onSendDefendant]);
+  }, [enteredValue]);
 
   return (
     <>
@@ -57,16 +71,15 @@ function MultipleDefendant({ onSendDefendant, personnals }: IProps) {
           <Select
             attr={{
               className: "select select-bordered w-full ",
-              value: enteredValue[index] || "none",
+              value: enteredValue[index] || "",
               onChange: (e) => handleSelectInputChange(e, index),
             }}
           >
-            <option value="none" disabled>
-              {" "}
+            <option value="" disabled>
               Pilih satu
             </option>
-            {defendants.map((item) => (
-              <option key={item.id} value={item.name}>
+            {defendants.map((item: IPersonnelDataTable) => (
+              <option key={item.id} value={item.id}>
                 {item.name}
               </option>
             ))}

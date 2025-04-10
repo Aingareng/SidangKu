@@ -1,16 +1,17 @@
-import { ChangeEvent, memo, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import Button from "../../../shared/components/atoms/Button";
 import Input from "../../../shared/components/atoms/Input";
 import Label from "../../../shared/components/atoms/Label";
 import { Icon } from "@iconify/react/dist/iconify.js";
+// import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
+// import { ISchedulePayload } from "../types/schedules";
+import localStorageUtils from "../../../shared/utils/localStorage";
+import { ISchedulePayload } from "../types/schedules";
 
-interface IProps {
-  onSendAgenda: (agendas: string[]) => void;
-}
-
-function MultipleAgenda({ onSendAgenda }: IProps) {
+function MultipleAgenda() {
   const [fieldAgenda, setFieldAgenda] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([]);
+  // const [, setValue] = useLocalStorage("newSchedule");
 
   function handleTextInputChange(
     event: ChangeEvent<HTMLInputElement>,
@@ -25,19 +26,36 @@ function MultipleAgenda({ onSendAgenda }: IProps) {
     });
   }
 
+  // const handleAddField = useCallback(() => {
+  //   setFieldAgenda((prev) => [...prev, prev.length + 1]);
+  // }, []);
+
   function handleAddField() {
     setFieldAgenda((prev) => [...prev, prev.length + 1]);
   }
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      onSendAgenda(enteredValue);
+      const filteredValues = enteredValue.filter((value) => value !== "");
+      const existKey = localStorageUtils.has("newSchedule");
+
+      if (existKey) {
+        const data = localStorageUtils.get<ISchedulePayload>("newSchedule");
+        localStorageUtils.set("newSchedule", {
+          ...data,
+          case_detail: filteredValues || "",
+        });
+      } else {
+        localStorageUtils.set("newSchedule", {
+          case_detail: filteredValues || "",
+        });
+      }
     }, 1000);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [enteredValue, onSendAgenda]);
+  }, [enteredValue]);
 
   return (
     <>
@@ -48,7 +66,7 @@ function MultipleAgenda({ onSendAgenda }: IProps) {
               type: "text",
               className: "input input-bordered w-full",
               placeholder: "Masukan Agenda",
-              value: enteredValue[index] || "", // Pastikan tidak undefined
+              value: enteredValue[index] || "",
               onChange: (e) => handleTextInputChange(e, index),
             }}
           />
@@ -56,6 +74,7 @@ function MultipleAgenda({ onSendAgenda }: IProps) {
       ))}
       <Button
         attributes={{
+          type: "button",
           className: "btn btn-primary btn-outline btn-sm",
           onClick: handleAddField,
         }}
@@ -67,4 +86,4 @@ function MultipleAgenda({ onSendAgenda }: IProps) {
   );
 }
 
-export default memo(MultipleAgenda);
+export default MultipleAgenda;
