@@ -4,18 +4,23 @@ import Label from "../../../shared/components/atoms/Label";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Select from "../../../shared/components/atoms/Select";
 import { IPersonnelDataTable } from "../../personnel/types/personnel";
-import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 import localStorageUtils from "../../../shared/utils/localStorage";
 import { ISchedulePayload } from "../types/schedules";
 
 interface IProps {
   errorMessage?: ReactNode;
+  isResetField?: boolean;
+  plaintiffData: IPersonnelDataTable[];
 }
 
-function MultiplePlaintiff({ errorMessage }: IProps) {
+function MultiplePlaintiff({
+  errorMessage,
+  isResetField,
+  plaintiffData,
+}: IProps) {
   const [fieldPlaintiff, setFieldPlaintiff] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([""]);
-  const [personnals] = useLocalStorage("personnels", []);
+  const [plaintiffs, setPlaintiffs] = useState<IPersonnelDataTable[]>([]);
 
   function handleSelectInputChange(
     event: ChangeEvent<HTMLSelectElement>,
@@ -35,9 +40,21 @@ function MultiplePlaintiff({ errorMessage }: IProps) {
     setEnteredValue((prev) => [...prev, ""]);
   }
 
-  const plaintiffs = personnals.filter(
-    (item: IPersonnelDataTable) => item.role_name.toLowerCase() === "penggugat"
-  );
+  useEffect(() => {
+    if (isResetField) {
+      setEnteredValue([]);
+      setFieldPlaintiff([1]);
+    }
+  }, [isResetField]);
+
+  useEffect(() => {
+    setPlaintiffs(() =>
+      plaintiffData.filter(
+        (item: IPersonnelDataTable) =>
+          item.role_name.toLowerCase() === "penggugat"
+      )
+    );
+  }, [plaintiffData]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -69,7 +86,7 @@ function MultiplePlaintiff({ errorMessage }: IProps) {
         <Label
           key={item}
           labelType="form-control"
-          leftLabel={`Penggugat ${item}`}
+          leftLabel={`Penggugat ${index + 1}`}
           bottomLeftLabel={errorMessage}
         >
           <Select
@@ -94,6 +111,7 @@ function MultiplePlaintiff({ errorMessage }: IProps) {
 
       <Button
         attributes={{
+          type: "button",
           className: "btn btn-primary btn-outline btn-sm",
           onClick: handleAddField,
           disabled: plaintiffs.length <= 1,

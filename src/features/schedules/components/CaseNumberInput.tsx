@@ -6,15 +6,27 @@ import { ISchedulePayload } from "../types/schedules";
 
 interface IProps {
   errorMessage?: ReactNode;
+  initialValue?: string;
+  isResetField?: boolean;
 }
 
-export default function CaseNumberInput({ errorMessage }: IProps) {
-  const [enteredValue, setEnteredValue] = useState<string>();
+export default function CaseNumberInput({
+  errorMessage,
+  initialValue,
+  isResetField,
+}: IProps) {
+  const [enteredValue, setEnteredValue] = useState<string>(initialValue || "");
   function handleTextInputChange(event: ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
 
     setEnteredValue(value);
   }
+
+  useEffect(() => {
+    if (isResetField) {
+      setEnteredValue("");
+    }
+  }, [isResetField]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

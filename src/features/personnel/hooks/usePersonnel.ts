@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { IPersonnelPayload, IQueryPersonnelParams } from "../types/personnel";
-import { create, get } from "../api/personnel";
+import { create, destroy, get } from "../api/personnel";
 
 export default function usePersonnel(params?: IQueryPersonnelParams) {
   const queryClient = useQueryClient();
@@ -32,6 +32,13 @@ export default function usePersonnel(params?: IQueryPersonnelParams) {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => destroy(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["personnel"] });
+    },
+  });
+
   return {
     personnels,
     error,
@@ -40,6 +47,7 @@ export default function usePersonnel(params?: IQueryPersonnelParams) {
     isFetching,
     isLoading,
     isPending,
-    createPersonnel: createMutation.mutate,
+    createPersonnel: createMutation.mutateAsync,
+    deletePersonnel: deleteMutation.mutateAsync,
   };
 }

@@ -12,6 +12,8 @@ export interface IPersonnelDataTable {
   role_name: string;
   email?: string;
   phone: string;
+  user_status: string;
+  role_id: string;
 }
 
 export interface IQueryPersonnelParams {

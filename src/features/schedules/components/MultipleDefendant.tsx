@@ -6,17 +6,22 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import Select from "../../../shared/components/atoms/Select";
 import localStorageUtils from "../../../shared/utils/localStorage";
 import { ISchedulePayload } from "../types/schedules";
-import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 import { IPersonnelDataTable } from "../../personnel/types/personnel";
 
 interface IProps {
   errorMessage?: ReactNode;
+  isResetField?: boolean;
+  defendantData: IPersonnelDataTable[];
 }
 
-function MultipleDefendant({ errorMessage }: IProps) {
+function MultipleDefendant({
+  errorMessage,
+  isResetField,
+  defendantData,
+}: IProps) {
   const [fieldDefendant, setFieldDefendant] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([""]);
-  const [personnals] = useLocalStorage("personnels", []);
+  const [defendants, setDefendants] = useState<IPersonnelDataTable[]>([]);
 
   function handleSelectInputChange(
     event: ChangeEvent<HTMLSelectElement>,
@@ -36,9 +41,20 @@ function MultipleDefendant({ errorMessage }: IProps) {
     setEnteredValue((prev) => [...prev, ""]);
   }
 
-  const defendants = personnals.filter(
-    (item: IPersonnelDataTable) => item.role_name.toLowerCase() === "tergugat"
-  );
+  useEffect(() => {
+    if (isResetField) {
+      setEnteredValue([]);
+      setFieldDefendant([1]);
+    }
+  }, [isResetField]);
+
+  useEffect(() => {
+    setDefendants(() =>
+      defendantData.filter(
+        (item) => item.role_name.toLowerCase() === "tergugat"
+      )
+    );
+  }, [defendantData]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,7 +86,7 @@ function MultipleDefendant({ errorMessage }: IProps) {
         <Label
           key={item}
           labelType="form-control"
-          leftLabel={`Tergugat ${item}`}
+          leftLabel={`Tergugat ${index + 1}`}
           bottomLeftLabel={errorMessage}
         >
           <Select
@@ -93,6 +109,7 @@ function MultipleDefendant({ errorMessage }: IProps) {
       ))}
       <Button
         attributes={{
+          type: "button",
           className: "btn btn-primary btn-outline btn-sm",
           onClick: handleAddField,
           disabled: defendants.length === 1,

@@ -1,5 +1,5 @@
 import { ChangeEvent, ReactNode, useEffect, useState } from "react";
-import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
+// import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 import { IPersonnelDataTable } from "../../personnel/types/personnel";
 import localStorageUtils from "../../../shared/utils/localStorage";
 import { ISchedulePayload } from "../types/schedules";
@@ -8,22 +8,39 @@ import Select from "../../../shared/components/atoms/Select";
 
 interface IProps {
   errorMessage?: ReactNode;
+  isResetField?: boolean;
+  registrarData: IPersonnelDataTable[];
 }
 
-export default function PaniteraInput({ errorMessage }: IProps) {
+export default function PaniteraInput({
+  errorMessage,
+  isResetField,
+  registrarData,
+}: IProps) {
   const [enteredValue, setEnteredValue] = useState<string>("");
-  const [personnals] = useLocalStorage("personnels", []);
   function handleSelectInputChange(event: ChangeEvent<HTMLSelectElement>) {
     const value = event.target.value;
 
     setEnteredValue(value);
   }
 
-  const registrars = personnals.filter(
-    (item: IPersonnelDataTable) =>
-      item.role_name.toLowerCase() === "panitera" ||
-      item.role_name.toLowerCase() === "panitera pengganti"
-  );
+  const [registrars, setRegistrars] = useState<IPersonnelDataTable[]>([]);
+
+  useEffect(() => {
+    if (isResetField) {
+      setEnteredValue("");
+    }
+  }, [isResetField]);
+
+  useEffect(() => {
+    setRegistrars(() =>
+      registrarData.filter(
+        (item: IPersonnelDataTable) =>
+          item.role_name.toLowerCase() === "panitera" ||
+          item.role_name.toLowerCase() === "panitera pengganti"
+      )
+    );
+  }, [registrarData]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

@@ -12,9 +12,12 @@ import MultipleJudges from "./MultipleJudges";
 import CaseNumberInput from "./CaseNumberInput";
 import PaniteraInput from "./PaniteraInput";
 import useSchedules from "../hooks/useSchedules";
+import { IPersonnelDataTable } from "../../personnel/types/personnel";
 
 interface IProps {
   ref: ForwardedRef<HTMLDialogElement>;
+  onClose?: () => void;
+  personnelData: IPersonnelDataTable[];
 }
 
 interface IValidationErrors {
@@ -26,12 +29,25 @@ interface IValidationErrors {
   registrar?: string;
 }
 
-export default function CreateSchedules({ ref }: IProps) {
+export default function CreateSchedules({
+  ref,
+  onClose,
+  personnelData,
+}: IProps) {
   ButtonAttributes.type = "submit";
   const { createSchedule } = useSchedules();
   const [validationErrors, setValidationErrors] = useState<IValidationErrors>(
     {}
   );
+
+  const [resetFormValue, setResetFormValue] = useState<{
+    case_number: boolean;
+    registrar: boolean;
+    multipleAgenda: boolean;
+    multiplePlaintiff: boolean;
+    multipleJudge: boolean;
+    multipleDefendant: boolean;
+  }>();
 
   function validateForm(data: ISchedulePayload): boolean {
     const errors: IValidationErrors = {};
@@ -64,7 +80,7 @@ export default function CreateSchedules({ ref }: IProps) {
     return Object.keys(errors).length === 0;
   }
 
-  function handleAddSchedule(event: React.FormEvent<HTMLFormElement>) {
+  async function handleAddSchedule(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const data = localStorageUtils.get<ISchedulePayload>("newSchedule");
@@ -77,7 +93,12 @@ export default function CreateSchedules({ ref }: IProps) {
       return;
     }
 
-    createSchedule(data);
+    const result = await createSchedule(data);
+
+    if (result?.status === 201) {
+      resetForm();
+      onClose?.();
+    }
   }
 
   function ErrorMessageRendered(message: string) {
@@ -88,6 +109,17 @@ export default function CreateSchedules({ ref }: IProps) {
     );
   }
 
+  function resetForm() {
+    setResetFormValue({
+      case_number: true,
+      registrar: true,
+      multipleAgenda: true,
+      multipleDefendant: true,
+      multipleJudge: true,
+      multiplePlaintiff: true,
+    });
+  }
+
   return (
     <Modal ref={ref}>
       {/* w-8/12  */}
@@ -96,36 +128,46 @@ export default function CreateSchedules({ ref }: IProps) {
         <Form attributes={{ onSubmit: (e) => handleAddSchedule(e) }}>
           <main className="grid grid-cols-1 gap-3">
             <CaseNumberInput
+              isResetField={resetFormValue?.case_number}
               errorMessage={
                 validationErrors.case_number &&
                 ErrorMessageRendered(validationErrors.case_number)
               }
             />
             <PaniteraInput
+              registrarData={personnelData}
+              isResetField={resetFormValue?.registrar}
               errorMessage={
                 validationErrors.registrar &&
                 ErrorMessageRendered(validationErrors.registrar)
               }
             />
             <MultipleAgenda
+              isResetField={resetFormValue?.multipleAgenda}
               errorMessage={
                 validationErrors.case_detail &&
                 ErrorMessageRendered(validationErrors.case_detail)
               }
             />
             <MultiplePlaintiff
+              plaintiffData={personnelData}
+              isResetField={resetFormValue?.multiplePlaintiff}
               errorMessage={
                 validationErrors.plaintiff &&
                 ErrorMessageRendered(validationErrors.plaintiff)
               }
             />
             <MultipleDefendant
+              defendantData={personnelData}
+              isResetField={resetFormValue?.multipleDefendant}
               errorMessage={
                 validationErrors.defendant &&
                 ErrorMessageRendered(validationErrors.defendant)
               }
             />
             <MultipleJudges
+              judgeData={personnelData}
+              isResetField={resetFormValue?.multipleJudge}
               errorMessage={
                 validationErrors.judges &&
                 ErrorMessageRendered(validationErrors.judges)

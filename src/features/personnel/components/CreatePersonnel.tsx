@@ -2,7 +2,13 @@ import Modal from "../../../shared/components/organisms/Modal";
 import Form from "../../../shared/components/molecules/Form";
 import Label from "../../../shared/components/atoms/Label";
 import Input from "../../../shared/components/atoms/Input";
-import { ChangeEvent, ForwardedRef, useActionState, useState } from "react";
+import {
+  ChangeEvent,
+  ForwardedRef,
+  memo,
+  useActionState,
+  useState,
+} from "react";
 import Select from "../../../shared/components/atoms/Select";
 import Button from "../../../shared/components/atoms/Button";
 import { z } from "zod";
@@ -46,9 +52,11 @@ const initialState: FormState = {
 
 interface IProps {
   ref: ForwardedRef<HTMLDialogElement>;
+  initialValue?: IPersonnelPayload;
+  isUpdate: boolean;
 }
 
-export default function CreatePersonnel({ ref }: IProps) {
+function CreatePersonnel({ ref, initialValue, isUpdate }: IProps) {
   const [isShowPassword, setIshowPassword] = useState(false);
   const [formData, setFormData] = useState<IPersonnelPayload>({
     name: "",
@@ -148,7 +156,7 @@ export default function CreatePersonnel({ ref }: IProps) {
                   name: "name",
                   placeholder: "Masukkan nama pihak",
                   required: true,
-                  value: formData?.name,
+                  value: initialValue?.name || formData?.name,
                   onChange: (event) => handleTextInputChange("name", event),
                 }}
               />
@@ -174,7 +182,7 @@ export default function CreatePersonnel({ ref }: IProps) {
                   name: "email",
                   placeholder: "Cth : John@example.com",
                   required: true,
-                  value: formData?.email,
+                  value: initialValue?.email || formData?.email,
                   onChange: (event) => handleTextInputChange("email", event),
                 }}
               />
@@ -200,7 +208,7 @@ export default function CreatePersonnel({ ref }: IProps) {
                   name: "phone",
                   placeholder: "Cth : 0822xxxxxx",
                   required: true,
-                  value: formData?.phone,
+                  value: initialValue?.phone || formData?.phone,
                   onChange: (event) => handleTextInputChange("phone", event),
                 }}
               />
@@ -227,7 +235,7 @@ export default function CreatePersonnel({ ref }: IProps) {
                     name: "password",
                     placeholder: "Masukan kata sandi",
                     required: true,
-                    value: formData?.password,
+                    value: initialValue?.password || formData?.password,
                     onChange: (event) =>
                       handleTextInputChange("password", event),
                   }}
@@ -260,7 +268,7 @@ export default function CreatePersonnel({ ref }: IProps) {
                   }`,
                   required: true,
                   name: "role_id",
-                  value: formData?.role_id,
+                  value: initialValue?.role_id || formData?.role_id,
                   onChange: (event) => handleSelectChange(event),
                 }}
               >
@@ -282,7 +290,7 @@ export default function CreatePersonnel({ ref }: IProps) {
             <Button
               attributes={{ type: "submit", className: "btn btn-primary" }}
             >
-              Tambah
+              {isUpdate ? "Ubah" : "Tambah"}
             </Button>
           </footer>
         </Form>
@@ -290,3 +298,5 @@ export default function CreatePersonnel({ ref }: IProps) {
     </Modal>
   );
 }
+
+export default memo(CreatePersonnel);

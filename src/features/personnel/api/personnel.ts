@@ -28,3 +28,12 @@ export async function get(params?: IQueryPersonnelParams) {
     console.error(error);
   }
 }
+
+export async function destroy(id: number) {
+  try {
+    const response = await api.delete<IApiResponse<null>>(`/user/${id}`);
+    return response;
+  } catch (error) {
+    console.error(error);
+  }
+}

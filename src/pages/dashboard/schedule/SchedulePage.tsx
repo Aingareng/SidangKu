@@ -39,8 +39,11 @@ export default function CaseHistoryPage() {
   const [enteredValues, setEnteredValues] = useState<FilterValues>({
     search: "",
   });
+  const [searchFilterValue, setSearchFilterValue] = useState("");
 
-  const { schedules, isFetched, deleteSchedule } = useSchedules();
+  const { schedules, isFetched, deleteSchedule } = useSchedules({
+    search: searchFilterValue,
+  });
   const { personnels } = usePersonnel();
   const [, setvalue] = useLocalStorage("personnels", []);
 
@@ -66,7 +69,6 @@ export default function CaseHistoryPage() {
       dialogRef.current?.showModal();
     }
     if (key === "DELETE" && id) {
-      console.log("Delete item with id", id);
       deleteSchedule(id.toString());
     }
   }
@@ -100,7 +102,7 @@ export default function CaseHistoryPage() {
   };
 
   function handleSubmitFilter(filterValues: FilterValues) {
-    console.log(filterValues);
+    setSearchFilterValue(filterValues.search || "");
   }
 
   const tableHeadContent = (
@@ -193,11 +195,12 @@ export default function CaseHistoryPage() {
       <main className="bg-base-100 p-4 grid grid-cols-1 gap-4  rounded-2xl">
         <TableFilter
           onSubmit={handleSubmitFilter}
-          onReset={() =>
+          onReset={() => {
             setEnteredValues({
               search: "",
-            })
-          }
+            });
+            setSearchFilterValue("");
+          }}
           className="flex items-end"
           searchInput={{
             useSearchInput: true,
@@ -228,7 +231,11 @@ export default function CaseHistoryPage() {
 
       {/*Modal section */}
 
-      <CreateSchedules ref={scheduleDialog} />
+      <CreateSchedules
+        personnelData={personnels || []}
+        ref={scheduleDialog}
+        onClose={() => scheduleDialog.current?.close()}
+      />
 
       <Modal ref={dialogRef}>
         <div className="grid grid-cols-1 gap-4  w-8/12  ">

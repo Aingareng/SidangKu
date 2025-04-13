@@ -1,16 +1,28 @@
-// import {   useRef } from "react";
 import { createPortal } from "react-dom";
-
-import { ForwardedRef, ReactNode } from "react";
+import { ForwardedRef, ReactNode, useCallback, useEffect } from "react";
 
 interface IProps {
   ref: ForwardedRef<HTMLDialogElement>;
   children: ReactNode;
+  onClose?: () => void;
   [key: string]: unknown;
 }
 
-export default function Modal({ ref, children }: IProps) {
+export default function Modal({ ref, children, onClose }: IProps) {
   const modalRoot = document.getElementById("modal") as HTMLDialogElement;
+
+  const handleClose = useCallback(() => {
+    onClose?.();
+  }, [onClose]);
+
+  useEffect(() => {
+    const dialog = ref && "current" in ref ? ref.current : null;
+
+    if (dialog) {
+      dialog.addEventListener("close", handleClose);
+      return () => dialog.removeEventListener("close", handleClose);
+    }
+  }, [handleClose, ref]);
 
   const defaultContent = (
     <>

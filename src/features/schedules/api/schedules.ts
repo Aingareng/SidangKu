@@ -12,7 +12,7 @@ export async function create(payload: ISchedulePayload) {
       "/schedules",
       payload
     );
-    return response.data;
+    return response;
   } catch (error) {
     console.error(error);
   }

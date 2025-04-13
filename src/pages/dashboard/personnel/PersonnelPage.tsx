@@ -12,15 +12,17 @@ import EmptyTableData from "../../../shared/components/molecules/EmptyTable";
 import { formatString } from "../../../shared/utils/stringFormatter";
 
 export default function PersonnelPage() {
-  const tableHead = ["Nama", "Jabatan/Peran", "Aksi"];
+  const tableHead = ["Nama", "Jabatan/Peran", "Status", "Aksi"];
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const isUpdate = useRef<boolean>(false);
 
   const [filterValue, setFilterValue] = useState<FilterValues>();
 
-  const { personnels, isFetched } = usePersonnel({
+  const { personnels, isFetched, deletePersonnel } = usePersonnel({
     search: filterValue?.search || "",
     role_id: filterValue?.select || "",
   });
+  const [selectUser, setSelectUser] = useState<number | null>(null);
 
   const tableHeadContent = (
     <>
@@ -30,14 +32,36 @@ export default function PersonnelPage() {
     </>
   );
 
-  function handleAction(id: number, key: string) {
+  async function handleAction(id: number, key: string) {
     if (key === "UPDATE" && id) {
+      isUpdate.current = true;
+      setSelectUser(id);
       dialogRef.current?.showModal();
     }
     if (key === "DELETE" && id) {
-      console.log("Delete item with id", id);
+      await deletePersonnel(id);
     }
   }
+
+  const selectedPersonnel = selectUser
+    ? personnels?.find((person) => person.id === selectUser)
+    : null;
+
+  const initialValue = selectedPersonnel
+    ? {
+        name: selectedPersonnel.name ?? "",
+        password: "", // misalkan password diset kosong saat edit
+        phone: selectedPersonnel.phone ?? "",
+        role_id: selectedPersonnel.role_id ?? "",
+        email: selectedPersonnel.email ?? "",
+      }
+    : {
+        name: "",
+        password: "",
+        phone: "",
+        role_id: "0",
+        email: "",
+      };
 
   return (
     <div className="grid grid-cols-1 gap-5">
@@ -48,7 +72,11 @@ export default function PersonnelPage() {
             attributes={{
               className: "btn btn-primary",
               type: "button",
-              onClick: () => dialogRef.current?.showModal(),
+              onClick: () => {
+                isUpdate.current = false;
+                setSelectUser(null);
+                dialogRef.current?.showModal();
+              },
             }}
           >
             <Icon
@@ -76,6 +104,7 @@ export default function PersonnelPage() {
                   <th>{index + 1}</th>
                   <td>{formatString(item.name, "capitalize")}</td>
                   <td>{formatString(item.role_name, "capitalize")}</td>
+                  <td>{formatString(item.user_status, "capitalize")}</td>
                   <th>
                     <Dropdown
                       itemIndex={item.id}
@@ -93,18 +122,23 @@ export default function PersonnelPage() {
                           Edit
                         </Button>
                       </List>
-                      <List>
-                        <Button
-                          attributes={{
-                            type: "button",
-                            onClick: () => handleAction(item.id, "DELETE"),
-                            className: "w-full text-left text-red-600",
-                          }}
-                        >
-                          <Icon icon="mdi:trash-can-outline" className="mr-2" />
-                          Hapus
-                        </Button>
-                      </List>
+                      {item.user_status === "inactive" && (
+                        <List>
+                          <Button
+                            attributes={{
+                              type: "button",
+                              onClick: () => handleAction(item.id, "DELETE"),
+                              className: "w-full text-left text-red-600",
+                            }}
+                          >
+                            <Icon
+                              icon="mdi:trash-can-outline"
+                              className="mr-2"
+                            />
+                            Hapus
+                          </Button>
+                        </List>
+                      )}
                     </Dropdown>
                   </th>
                 </tr>
@@ -114,7 +148,11 @@ export default function PersonnelPage() {
         </div>
       </main>
 
-      <CreatePersonnel ref={dialogRef} />
+      <CreatePersonnel
+        ref={dialogRef}
+        initialValue={initialValue}
+        isUpdate={isUpdate.current}
+      />
     </div>
   );
 }

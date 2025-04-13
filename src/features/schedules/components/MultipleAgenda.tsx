@@ -8,12 +8,12 @@ import { ISchedulePayload } from "../types/schedules";
 
 interface IProps {
   errorMessage?: ReactNode;
+  isResetField?: boolean;
 }
 
-function MultipleAgenda({ errorMessage }: IProps) {
+function MultipleAgenda({ errorMessage, isResetField }: IProps) {
   const [fieldAgenda, setFieldAgenda] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([]);
-  // const [, setValue] = useLocalStorage("newSchedule");
 
   function handleTextInputChange(
     event: ChangeEvent<HTMLInputElement>,
@@ -27,6 +27,13 @@ function MultipleAgenda({ errorMessage }: IProps) {
       return newValues;
     });
   }
+
+  useEffect(() => {
+    if (isResetField) {
+      setEnteredValue([]);
+      setFieldAgenda([0]);
+    }
+  }, [isResetField]);
 
   function handleAddField() {
     setFieldAgenda((prev) => [...prev, prev.length + 1]);
@@ -61,7 +68,7 @@ function MultipleAgenda({ errorMessage }: IProps) {
         <Label
           key={item}
           labelType="form-control"
-          leftLabel={`Agenda ${item}`}
+          leftLabel={`Agenda ${index + 1}`}
           bottomLeftLabel={errorMessage}
         >
           <Input

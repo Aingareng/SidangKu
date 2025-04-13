@@ -7,16 +7,17 @@ import { IPersonnelDataTable } from "../../personnel/types/personnel";
 import Select from "../../../shared/components/atoms/Select";
 import localStorageUtils from "../../../shared/utils/localStorage";
 import { ISchedulePayload } from "../types/schedules";
-import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 
 interface IProps {
   errorMessage?: ReactNode;
+  isResetField?: boolean;
+  judgeData: IPersonnelDataTable[];
 }
 
-function MultipleJudges({ errorMessage }: IProps) {
+function MultipleJudges({ errorMessage, isResetField, judgeData }: IProps) {
   const [fieldJudges, setFieldJudges] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([""]);
-  const [personnals] = useLocalStorage("personnels", []);
+  const [judges, setJudges] = useState<IPersonnelDataTable[]>([]);
 
   function handleSelectInputChange(
     event: ChangeEvent<HTMLSelectElement>,
@@ -36,9 +37,18 @@ function MultipleJudges({ errorMessage }: IProps) {
     setEnteredValue((prev) => [...prev, ""]);
   }
 
-  const judges = personnals.filter(
-    (item: IPersonnelDataTable) => item.role_name.toLowerCase() === "hakim"
-  );
+  useEffect(() => {
+    if (isResetField) {
+      setEnteredValue([]);
+      setFieldJudges([1]);
+    }
+  }, [isResetField]);
+
+  useEffect(() => {
+    setJudges(() =>
+      judgeData.filter((item) => item.role_name.toLowerCase() === "hakim")
+    );
+  }, [judgeData]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,7 +80,7 @@ function MultipleJudges({ errorMessage }: IProps) {
         <Label
           key={item}
           labelType="form-control"
-          leftLabel={`Hakim ${item}`}
+          leftLabel={`Hakim ${index + 1}`}
           bottomLeftLabel={errorMessage}
         >
           <Select
@@ -94,6 +104,7 @@ function MultipleJudges({ errorMessage }: IProps) {
       ))}
       <Button
         attributes={{
+          type: "button",
           className: "btn btn-primary btn-outline btn-sm",
           onClick: handleAddField,
           disabled: judges.length === 1,
