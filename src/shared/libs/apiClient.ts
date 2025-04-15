@@ -24,13 +24,14 @@ export class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      throw new Error(
-        JSON.stringify({
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        })
-      );
+      return errorData;
+      // throw new Error(
+      //   JSON.stringify({
+      //     status: response.status,
+      //     statusText: response.statusText,
+      //     error: errorData,
+      //   })
+      // );
     }
 
     return await response.json();

@@ -28,6 +28,7 @@ import EmptyTableData from "../../../shared/components/molecules/EmptyTable";
 import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 import usePersonnel from "../../../features/personnel/hooks/usePersonnel";
 import formatTangal from "../../../shared/utils/formatTanggal";
+import roleCheking from "../../../features/schedules/utils/roleCheking";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
@@ -105,13 +106,36 @@ export default function CaseHistoryPage() {
     setSearchFilterValue(filterValues.search || "");
   }
 
-  const tableHeadContent = (
+  const user = roleCheking();
+
+  let tableHeadContent = (
     <>
       {tableHead.map((item) => (
         <th key={item}>{item}</th>
       ))}
     </>
   );
+
+  if (!user.isAuthority) {
+    tableHeadContent = (
+      <>
+        {tableHead
+          .filter((th) => {
+            return [
+              "tanggal",
+              "nomor perkara",
+              "agenda",
+              "nomor antrian",
+              "ruang sidang",
+              "",
+            ].includes(th.toLowerCase());
+          })
+          .map((item) => (
+            <th key={item}>{item}</th>
+          ))}
+      </>
+    );
+  }
 
   const tableBodyContent = (
     <>
@@ -122,26 +146,31 @@ export default function CaseHistoryPage() {
             <td>{formatTangal(item.scheduled_date)}</td>
             <td>{item.case_number}</td>
             <td>{item.agenda}</td>
-            <td>
-              {item.plaintiffs
-                ? item.plaintiffs.map((plaintiffs) => (
-                    <p key={plaintiffs}>{plaintiffs}</p>
-                  ))
-                : []}
-            </td>
-            <td>
-              {item.defendants
-                ? item.defendants.map((defendant) => (
-                    <p key={defendant}>{defendant}</p>
-                  ))
-                : []}
-            </td>
-            <td>
-              {item.judges
-                ? item.judges.map((judge) => <p key={judge}>{judge}</p>)
-                : []}
-            </td>
-            <td>{item.registrar}</td>
+            {user.isAuthority && (
+              <>
+                <td>
+                  {item.plaintiffs
+                    ? item.plaintiffs.map((plaintiffs) => (
+                        <p key={plaintiffs}>{plaintiffs}</p>
+                      ))
+                    : []}
+                </td>
+                <td>
+                  {item.defendants
+                    ? item.defendants.map((defendant) => (
+                        <p key={defendant}>{defendant}</p>
+                      ))
+                    : []}
+                </td>
+                <td>
+                  {item.judges
+                    ? item.judges.map((judge) => <p key={judge}>{judge}</p>)
+                    : []}
+                </td>
+                <td>{item.registrar}</td>
+              </>
+            )}
+
             <td>{item.queue_number}</td>
             <td>{item.location}</td>
             <th>

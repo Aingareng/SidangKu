@@ -70,14 +70,14 @@ export default function Navbar() {
             </List>
 
             <List>
-              <Link to="/login">
+              <a href="/login">
                 <Icon
                   icon="material-symbols:exit-to-app-rounded"
                   width="24"
                   height="24"
                 />
                 Keluar
-              </Link>
+              </a>
             </List>
           </Menu>
         </div>
