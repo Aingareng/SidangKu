@@ -3,18 +3,21 @@ import Button from "../../../shared/components/atoms/Button";
 import Table from "../../../shared/components/organisms/Table";
 import Dropdown from "../../../shared/components/molecules/Dropdown";
 import List from "../../../shared/components/atoms/List";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import usePersonnel from "../../../features/personnel/hooks/usePersonnel";
 import PersonnelFilter from "../../../features/personnel/components/PersonnelFilter";
 import { FilterValues } from "../../../shared/components/organisms/TableFilter";
 import CreatePersonnel from "../../../features/personnel/components/CreatePersonnel";
 import EmptyTableData from "../../../shared/components/molecules/EmptyTable";
 import { formatString } from "../../../shared/utils/stringFormatter";
+import { useToast } from "../../../shared/hooks/useToast";
 
 export default function PersonnelPage() {
   const tableHead = ["Nama", "Jabatan/Peran", "Status", "Aksi"];
   const dialogRef = useRef<HTMLDialogElement>(null);
   const isUpdate = useRef<boolean>(false);
+  const { Toast, showToast } = useToast();
+  const [sendingStatus, setSendingStatus] = useState<number | undefined>();
 
   const [filterValue, setFilterValue] = useState<FilterValues>();
 
@@ -39,9 +42,40 @@ export default function PersonnelPage() {
       dialogRef.current?.showModal();
     }
     if (key === "DELETE" && id) {
-      await deletePersonnel(id);
+      const deleteResult = await deletePersonnel(id);
+
+      if (deleteResult?.status === 200 || deleteResult?.status === 201) {
+        showToast({
+          type:
+            deleteResult?.status === 200 || deleteResult?.status === 201
+              ? "success"
+              : "error",
+          message:
+            deleteResult?.status === 200 || deleteResult?.status === 201
+              ? "Berhasil menghapus pihak"
+              : "Gagal menghapus pihak",
+        });
+      }
     }
   }
+
+  const handleOnSendStatus = useCallback((statusCode: number | undefined) => {
+    setSendingStatus(statusCode);
+  }, []);
+
+  useEffect(() => {
+    if (sendingStatus !== undefined) {
+      showToast({
+        type: sendingStatus === 201 ? "success" : "error",
+        message:
+          sendingStatus === 201
+            ? "Berhasil menambahkan user"
+            : "Gagal menambahkan user",
+        duration: 0,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sendingStatus]);
 
   const selectedPersonnel = selectUser
     ? personnels?.find((person) => person.id === selectUser)
@@ -59,12 +93,13 @@ export default function PersonnelPage() {
         name: "",
         password: "",
         phone: "",
-        role_id: "0",
+        role_id: "",
         email: "",
       };
 
   return (
     <div className="grid grid-cols-1 gap-5">
+      <Toast />
       <header>
         <div className=" flex justify-between items-center">
           <h1 className="text-3xl font-bold">Daftar Pihak Terkait</h1>
@@ -152,6 +187,7 @@ export default function PersonnelPage() {
         ref={dialogRef}
         initialValue={initialValue}
         isUpdate={isUpdate.current}
+        onSendingStatus={handleOnSendStatus}
       />
     </div>
   );

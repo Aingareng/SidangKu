@@ -9,7 +9,7 @@ import {
 export async function create(payload: IPersonnelPayload) {
   try {
     const response = await api.post<IApiResponse<null>>("/user", payload);
-    return response.data;
+    return response;
   } catch (error) {
     console.error(error);
   }

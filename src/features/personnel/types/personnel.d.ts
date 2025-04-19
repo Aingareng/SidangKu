@@ -2,7 +2,7 @@ export interface IPersonnelPayload {
   name: string;
   role_id: string;
   email?: string;
-  phone: string;
+  phone?: string;
   password: string;
 }
 

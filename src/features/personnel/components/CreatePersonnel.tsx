@@ -28,7 +28,8 @@ const formSchema = z.object({
     .regex(
       /^\+?[0-9]+$/,
       "Nomor telepon hanya boleh mengandung angka dan boleh diawali dengan +"
-    ),
+    )
+    .optional(),
   password: z
     .string()
     .min(8, "Password harus minimal 8 karakter")
@@ -54,9 +55,15 @@ interface IProps {
   ref: ForwardedRef<HTMLDialogElement>;
   initialValue?: IPersonnelPayload;
   isUpdate: boolean;
+  onSendingStatus?: (statusCode: number | undefined) => void;
 }
 
-function CreatePersonnel({ ref, initialValue, isUpdate }: IProps) {
+function CreatePersonnel({
+  ref,
+  initialValue,
+  isUpdate,
+  onSendingStatus,
+}: IProps) {
   const [isShowPassword, setIshowPassword] = useState(false);
   const [formData, setFormData] = useState<IPersonnelPayload>({
     name: "",
@@ -98,13 +105,15 @@ function CreatePersonnel({ ref, initialValue, isUpdate }: IProps) {
       const validatedData = formSchema.parse(data);
 
       // Jika validasi berhasil, lakukan aksi submit
-      createPersonnel({
+      const result = await createPersonnel({
         name: validatedData.name,
         email: validatedData.email,
         password: validatedData.password,
         role_id: validatedData.role_id,
         phone: validatedData.phone, // Ensure phone is included
       });
+
+      onSendingStatus?.(result?.status);
 
       return {
         errors: {},
@@ -283,6 +292,7 @@ function CreatePersonnel({ ref, initialValue, isUpdate }: IProps) {
                 <option value="6">Penggugat</option>
                 <option value="7">Tergugat</option>
                 <option value="8">Saksi</option>
+                <option value="10">Terdakwa</option>
               </Select>
             </Label>
           </main>

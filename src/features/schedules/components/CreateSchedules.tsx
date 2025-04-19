@@ -1,5 +1,4 @@
 import { ForwardedRef, useCallback, useState } from "react";
-import { ButtonAttributes } from "../../../shared/libs/elementAttributes";
 import Form from "../../../shared/components/molecules/Form";
 import Modal from "../../../shared/components/organisms/Modal";
 import Button from "../../../shared/components/atoms/Button";
@@ -20,6 +19,7 @@ interface IProps {
   ref: ForwardedRef<HTMLDialogElement>;
   onClose?: () => void;
   personnelData: IPersonnelDataTable[];
+  onSendingStatus?: (statusCode: number | undefined) => void;
 }
 
 interface IValidationErrors {
@@ -37,12 +37,16 @@ export default function CreateSchedules({
   ref,
   onClose,
   personnelData,
+  onSendingStatus,
 }: IProps) {
-  ButtonAttributes.type = "submit";
   const { createSchedule } = useSchedules();
   const [validationErrors, setValidationErrors] = useState<IValidationErrors>(
     {}
   );
+  const [sendingStatus, setSendingStatus] = useState({
+    isPending: false,
+    isError: false,
+  });
 
   const [resetFormValue, setResetFormValue] = useState<{
     case_number: boolean;
@@ -110,12 +114,26 @@ export default function CreateSchedules({
       return;
     }
 
+    setSendingStatus((prev) => ({ ...prev, isPending: true }));
+
     const result = await createSchedule(data);
 
     if (result?.status === 201) {
+      onSendingStatus?.(result.status);
+      setSendingStatus((prev) => ({ ...prev, isPending: false }));
       resetForm();
       onClose?.();
+    } else {
+      onSendingStatus?.(result?.status as number);
+      resetForm();
+      onClose?.();
+      setSendingStatus(() => ({ isError: true, isPending: false }));
     }
+
+    setTimeout(() => {
+      onSendingStatus?.(undefined);
+      setIsPerdatacase(true);
+    }, 3000);
   }
 
   function ErrorMessageRendered(message: string) {
@@ -223,7 +241,15 @@ export default function CreateSchedules({
             />
           </main>
           <footer className="flex items-center justify-end mt-3">
-            <Button attributes={ButtonAttributes}>Tentukan</Button>
+            <Button
+              attributes={{
+                type: "submit",
+                className: "btn btn-primary",
+                disabled: sendingStatus.isPending,
+              }}
+            >
+              Tentukan
+            </Button>
           </footer>
         </Form>
       </div>

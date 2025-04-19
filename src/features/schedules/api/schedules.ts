@@ -35,7 +35,7 @@ export async function get(params: IQuerySchedulesParams) {
 export async function destroy(id: string) {
   try {
     const response = await api.delete<IApiResponse<null>>(`/schedules/${id}`);
-    return response.data;
+    return response;
   } catch (error) {
     console.error(error);
   }
@@ -48,7 +48,7 @@ export async function update(id: number, payload: ISchedulePayload) {
       payload
     );
 
-    return response.data;
+    return response;
   } catch (error) {
     console.error(error);
   }

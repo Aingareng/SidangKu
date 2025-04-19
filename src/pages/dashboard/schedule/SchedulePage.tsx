@@ -1,4 +1,11 @@
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import Table from "../../../shared/components/organisms/Table";
 import {
@@ -29,6 +36,7 @@ import {
   ISchedulePayload,
   TypeUser,
 } from "../../../features/schedules/types/schedules";
+import { useToast } from "../../../shared/hooks/useToast";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
@@ -51,11 +59,6 @@ export default function CaseHistoryPage() {
   const { personnels } = usePersonnel();
   const [, setvalue] = useLocalStorage("personnels", []);
   const itemSelectId = useRef<number | null>(null);
-
-  useEffect(() => {
-    setvalue(personnels);
-  }, [personnels, setvalue]);
-
   const [tableHead] = useState([
     "Tanggal",
     "Nomor Perkara",
@@ -70,14 +73,45 @@ export default function CaseHistoryPage() {
     "Ruang Sidang",
     "",
   ]);
+  const [sendingStatus, setSendingStatus] = useState<number | undefined>();
 
-  function handleAction(id: number, key: string) {
+  useEffect(() => {
+    setvalue(personnels);
+  }, [personnels, setvalue]);
+
+  const { Toast, showToast } = useToast();
+
+  useEffect(() => {
+    if (sendingStatus !== undefined) {
+      showToast({
+        type: sendingStatus === 201 ? "success" : "error",
+        message:
+          sendingStatus === 201
+            ? "Berhasil menambahkan jadwal ujian"
+            : "Gagal menambahkan jadwal ujian",
+        duration: 0,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sendingStatus]);
+
+  async function handleAction(id: number, key: string) {
     itemSelectId.current = id;
     if (key === "SET_HEARING" && id) {
       dialogRef.current?.showModal();
     }
     if (key === "DELETE" && id) {
-      deleteSchedule(id.toString());
+      const deleteResult = await deleteSchedule(id.toString());
+      if (deleteResult?.status !== undefined) {
+        showToast({
+          type: deleteResult?.status === 200 ? "success" : "error",
+          message:
+            deleteResult?.status === 200
+              ? "Berhasil menghapus jadwal ujian"
+              : "Gagal menghapus jadwal ujian",
+          duration: 0,
+        });
+      }
     }
   }
   function handleAddSchedule() {
@@ -102,7 +136,7 @@ export default function CaseHistoryPage() {
     queue_number?: string;
   }>();
 
-  function handleSetTrial(event: FormEvent<HTMLFormElement>) {
+  async function handleSetTrial(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const schedule = schedules?.find(
       (schedule) => schedule.id === itemSelectId.current
@@ -134,10 +168,35 @@ export default function CaseHistoryPage() {
         queue_number: +(trialValue?.queue_number as string),
       };
 
-      updateSchedule({ id: itemSelectId.current, payload });
-      // console.log("🚀 ~ handleSetTrial ~ payload:", payload);
+      const updateResult = await updateSchedule({
+        id: itemSelectId.current,
+        payload,
+      });
+
+      if (updateResult?.status !== undefined) {
+        showToast({
+          type: updateResult?.status === 200 ? "success" : "error",
+          message:
+            updateResult?.status === 200
+              ? "Berhasil tentukan ruangan & antrian sidang"
+              : "Gagal menentukan ruangan & antrian sidang",
+          duration: 0,
+        });
+
+        if (updateResult.status === 200) {
+          setTrialValue({
+            location: "",
+            queue_number: "",
+          });
+          dialogRef.current?.close();
+        }
+      }
     }
   }
+
+  const handleSendingStatus = useCallback((statusCode: number | undefined) => {
+    setSendingStatus(statusCode);
+  }, []);
 
   const user = roleCheking();
 
@@ -251,6 +310,7 @@ export default function CaseHistoryPage() {
 
   return (
     <section className="grid grid-cols-1 gap-5">
+      <Toast />
       <header>
         <div className=" flex justify-between items-center">
           <h1 className="text-3xl font-bold">Jadwal Sidang</h1>
@@ -327,6 +387,7 @@ export default function CaseHistoryPage() {
         personnelData={personnels || []}
         ref={scheduleDialog}
         onClose={() => scheduleDialog.current?.close()}
+        onSendingStatus={handleSendingStatus}
       />
 
       <Modal ref={dialogRef}>

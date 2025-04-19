@@ -20,7 +20,7 @@ export default function useSchedules(params?: IQuerySchedulesParams) {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (payload: ISchedulePayload) => await create(payload),
+    mutationFn: (payload: ISchedulePayload) => create(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["schedules"] });
     },
@@ -33,13 +33,8 @@ export default function useSchedules(params?: IQuerySchedulesParams) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({
-      id,
-      payload,
-    }: {
-      id: number;
-      payload: ISchedulePayload;
-    }) => await update(id, payload),
+    mutationFn: ({ id, payload }: { id: number; payload: ISchedulePayload }) =>
+      update(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["schedules"] });
     },
