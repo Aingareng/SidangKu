@@ -66,11 +66,11 @@ function MultiplePlaintiff({
         const data = localStorageUtils.get<ISchedulePayload>("newSchedule");
         localStorageUtils.set("newSchedule", {
           ...data,
-          plaintiff: filteredValues || "",
+          plaintiffs: filteredValues || "",
         });
       } else {
         localStorageUtils.set("newSchedule", {
-          plaintiff: filteredValues || "",
+          plaintiffs: filteredValues || "",
         });
       }
     }, 1000);

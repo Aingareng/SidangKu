@@ -14,6 +14,8 @@ export interface IPersonnelDataTable {
   phone: string;
   user_status: string;
   role_id: string;
+  case_type: "perdata" | "pidana";
+  preached: string;
 }
 
 export interface IQueryPersonnelParams {

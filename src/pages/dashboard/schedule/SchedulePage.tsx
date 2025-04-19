@@ -1,9 +1,7 @@
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 
 import Table from "../../../shared/components/organisms/Table";
 import {
-  ButtonAttributes,
-  FormAttributes,
   MenuAttributes,
   TableAttributes,
 } from "../../../shared/libs/elementAttributes";
@@ -12,10 +10,7 @@ import Modal from "../../../shared/components/organisms/Modal";
 import Form from "../../../shared/components/molecules/Form";
 import Label from "../../../shared/components/atoms/Label";
 import Input from "../../../shared/components/atoms/Input";
-import {
-  getButtonAttributes,
-  getInputTextAttributes,
-} from "../../../shared/utils/getElementAttributes";
+import { getButtonAttributes } from "../../../shared/utils/getElementAttributes";
 import Button from "../../../shared/components/atoms/Button";
 import CreateSchedules from "../../../features/schedules/components/CreateSchedules";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -29,24 +24,33 @@ import { useLocalStorage } from "../../../shared/hooks/useLocalStorage";
 import usePersonnel from "../../../features/personnel/hooks/usePersonnel";
 import formatTangal from "../../../shared/utils/formatTanggal";
 import roleCheking from "../../../features/schedules/utils/roleCheking";
+import { formatString } from "../../../shared/utils/stringFormatter";
+import {
+  ISchedulePayload,
+  TypeUser,
+} from "../../../features/schedules/types/schedules";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
-  FormAttributes.className = " grid grid-cols-1 gap-4";
-  ButtonAttributes.className += " btn-primary";
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const scheduleDialog = useRef<HTMLDialogElement>(null);
   const [enteredValues, setEnteredValues] = useState<FilterValues>({
     search: "",
+    select: "",
   });
   const [searchFilterValue, setSearchFilterValue] = useState("");
+  const [selectFilterValue, setSelectFilterValue] = useState("");
 
-  const { schedules, isFetched, deleteSchedule } = useSchedules({
-    search: searchFilterValue,
-  });
+  const { schedules, isFetched, deleteSchedule, updateSchedule } = useSchedules(
+    {
+      search: searchFilterValue,
+      select: selectFilterValue,
+    }
+  );
   const { personnels } = usePersonnel();
   const [, setvalue] = useLocalStorage("personnels", []);
+  const itemSelectId = useRef<number | null>(null);
 
   useEffect(() => {
     setvalue(personnels);
@@ -55,7 +59,9 @@ export default function CaseHistoryPage() {
   const [tableHead] = useState([
     "Tanggal",
     "Nomor Perkara",
+    "Tipe Perkara",
     "Agenda",
+    "Terdakwa",
     "Penggugat",
     "Tergugat",
     "Majelis Hakim",
@@ -66,6 +72,7 @@ export default function CaseHistoryPage() {
   ]);
 
   function handleAction(id: number, key: string) {
+    itemSelectId.current = id;
     if (key === "SET_HEARING" && id) {
       dialogRef.current?.showModal();
     }
@@ -76,23 +83,6 @@ export default function CaseHistoryPage() {
   function handleAddSchedule() {
     scheduleDialog.current?.showModal();
   }
-  const queueInputAttr = {
-    ...getInputTextAttributes({
-      name: "queue",
-      type: "number",
-      min: 0,
-      className: "input input-bordered w-full",
-    }),
-  };
-
-  const roomInputAttr = {
-    ...getInputTextAttributes({
-      name: "room",
-      type: "number",
-      min: 0,
-      className: "input input-bordered w-full",
-    }),
-  };
 
   const btnAttr = {
     ...getButtonAttributes({
@@ -104,6 +94,49 @@ export default function CaseHistoryPage() {
 
   function handleSubmitFilter(filterValues: FilterValues) {
     setSearchFilterValue(filterValues.search || "");
+    setSelectFilterValue(filterValues.select || "");
+  }
+
+  const [trialValue, setTrialValue] = useState<{
+    location?: string;
+    queue_number?: string;
+  }>();
+
+  function handleSetTrial(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const schedule = schedules?.find(
+      (schedule) => schedule.id === itemSelectId.current
+    );
+
+    if (typeof itemSelectId.current === "number") {
+      const payload: ISchedulePayload = {
+        case_number: schedule?.case_number as string,
+        case_type: schedule?.case_type as "perdata" | "pidana",
+        judges:
+          (schedule?.judges?.map((item) => item.id.toString()) as string[]) ||
+          [],
+        preacheds:
+          (schedule?.preacheds?.map((item) =>
+            item.id.toString()
+          ) as string[]) || [],
+        defendants:
+          (schedule?.defendants?.map((item) =>
+            item.id.toString()
+          ) as string[]) || [],
+        plaintiffs:
+          (schedule?.plaintiffs?.map((item) =>
+            item.id.toString()
+          ) as string[]) || [],
+        registrar:
+          ((schedule?.registrar as TypeUser).id.toString() as string) || "",
+        case_detail: schedule?.case_details as string[],
+        location: +(trialValue?.location as string),
+        queue_number: +(trialValue?.queue_number as string),
+      };
+
+      updateSchedule({ id: itemSelectId.current, payload });
+      // console.log("🚀 ~ handleSetTrial ~ payload:", payload);
+    }
   }
 
   const user = roleCheking();
@@ -145,29 +178,39 @@ export default function CaseHistoryPage() {
             <th>{idx + 1}</th>
             <td>{formatTangal(item.scheduled_date)}</td>
             <td>{item.case_number}</td>
-            <td>{item.agenda}</td>
+            <td>{formatString(item.case_type, "capitalize")}</td>
+            <td> {item.case_details}</td>
             {user.isAuthority && (
               <>
                 <td>
+                  {item.preacheds
+                    ? item.preacheds.map((preached) => (
+                        <p key={preached.id}>{preached.name}</p>
+                      ))
+                    : []}
+                </td>
+                <td>
                   {item.plaintiffs
                     ? item.plaintiffs.map((plaintiffs) => (
-                        <p key={plaintiffs}>{plaintiffs}</p>
+                        <p key={plaintiffs.id}>{plaintiffs.name}</p>
                       ))
                     : []}
                 </td>
                 <td>
                   {item.defendants
                     ? item.defendants.map((defendant) => (
-                        <p key={defendant}>{defendant}</p>
+                        <p key={defendant.id}>{defendant.name}</p>
                       ))
                     : []}
                 </td>
                 <td>
                   {item.judges
-                    ? item.judges.map((judge) => <p key={judge}>{judge}</p>)
+                    ? item.judges.map((judge) => (
+                        <p key={judge.id}>{judge.name}</p>
+                      ))
                     : []}
                 </td>
-                <td>{item.registrar}</td>
+                <td>{(item.registrar as TypeUser).name}</td>
               </>
             )}
 
@@ -227,10 +270,12 @@ export default function CaseHistoryPage() {
           onReset={() => {
             setEnteredValues({
               search: "",
+              select: "",
             });
             setSearchFilterValue("");
+            setSelectFilterValue("");
           }}
-          className="flex items-end"
+          className="grid grid-cols-[310px_310px_1fr] items-end gap-2"
           searchInput={{
             useSearchInput: true,
             label: "Cari Perkara",
@@ -241,6 +286,24 @@ export default function CaseHistoryPage() {
                 return {
                   ...prev,
                   search: event.target.value,
+                };
+              });
+            },
+          }}
+          selectInput={{
+            useSelectInput: true,
+            label: "Tipe Perkara",
+            options: [
+              { label: "Pilih Perkara", value: "" },
+              { label: "Perdata", value: "perdata" },
+              { label: "Pidana", value: "pidana" },
+            ],
+            value: enteredValues.select || "",
+            onChange: (event: ChangeEvent<HTMLSelectElement>) => {
+              setEnteredValues((prev) => {
+                return {
+                  ...prev,
+                  select: event.target.value,
                 };
               });
             },
@@ -269,17 +332,61 @@ export default function CaseHistoryPage() {
       <Modal ref={dialogRef}>
         <div className="grid grid-cols-1 gap-4  w-8/12  ">
           <h1 className="text-2xl font-bold text-center">Tetapkan sidang</h1>
-          <Form attributes={FormAttributes}>
+          <Form
+            attributes={{
+              onSubmit: (e) => handleSetTrial(e),
+              className: "grid grid-cols-1 gap-4",
+            }}
+          >
             <main>
               <Label labelType="form-control" leftLabel="Nomor Antrian">
-                <Input attributes={queueInputAttr} />
+                <Input
+                  attributes={{
+                    name: "queue_number",
+                    type: "number",
+                    min: 0,
+                    className: "input input-bordered w-full",
+                    value: trialValue?.queue_number || "",
+                    onChange: (e: ChangeEvent<HTMLInputElement>) => {
+                      setTrialValue((prev) => {
+                        return {
+                          ...prev,
+                          queue_number: e.target.value,
+                        };
+                      });
+                    },
+                  }}
+                />
               </Label>
               <Label labelType="form-control" leftLabel="Ruang Sidang">
-                <Input attributes={roomInputAttr} />
+                <Input
+                  attributes={{
+                    name: "location",
+                    type: "number",
+                    min: 0,
+                    className: "input input-bordered w-full",
+                    value: trialValue?.location || "",
+                    onChange: (e: ChangeEvent<HTMLInputElement>) => {
+                      setTrialValue((prev) => {
+                        return {
+                          ...prev,
+                          location: e.target.value,
+                        };
+                      });
+                    },
+                  }}
+                />
               </Label>
             </main>
             <footer className="flex items-center justify-end">
-              <Button attributes={ButtonAttributes}>Tentukan</Button>
+              <Button
+                attributes={{
+                  type: "submit",
+                  className: "btn btn-active btn-primary",
+                }}
+              >
+                Tentukan
+              </Button>
             </footer>
           </Form>
         </div>

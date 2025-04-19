@@ -1,4 +1,4 @@
-import { ForwardedRef, useState } from "react";
+import { ForwardedRef, useCallback, useState } from "react";
 import { ButtonAttributes } from "../../../shared/libs/elementAttributes";
 import Form from "../../../shared/components/molecules/Form";
 import Modal from "../../../shared/components/organisms/Modal";
@@ -13,6 +13,8 @@ import CaseNumberInput from "./CaseNumberInput";
 import PaniteraInput from "./PaniteraInput";
 import useSchedules from "../hooks/useSchedules";
 import { IPersonnelDataTable } from "../../personnel/types/personnel";
+import CaseTypeInput from "./CaseTypeInput";
+import MultiplePreached from "./MultiplePreached";
 
 interface IProps {
   ref: ForwardedRef<HTMLDialogElement>;
@@ -27,6 +29,8 @@ interface IValidationErrors {
   case_detail?: string;
   judges?: string;
   registrar?: string;
+  case_type?: string;
+  preached?: string;
 }
 
 export default function CreateSchedules({
@@ -47,7 +51,10 @@ export default function CreateSchedules({
     multiplePlaintiff: boolean;
     multipleJudge: boolean;
     multipleDefendant: boolean;
+    case_type: boolean;
+    multiplePreached: boolean;
   }>();
+  const [isPerdataCase, setIsPerdatacase] = useState<boolean>(false);
 
   function validateForm(data: ISchedulePayload): boolean {
     const errors: IValidationErrors = {};
@@ -56,12 +63,22 @@ export default function CreateSchedules({
       errors.case_number = "Nomor perkara wajib diisi";
     }
 
-    if (!data.plaintiff?.length || data.plaintiff.some((p) => !p.trim())) {
-      errors.plaintiff = "Minimal harus ada 1 penggugat";
+    if (!data.case_type.trim()) {
+      errors.case_type = "Tipe perkara wajib diisi";
     }
 
-    if (!data.defendant?.length || data.defendant.some((d) => !d.trim())) {
-      errors.defendant = "Minimal harus ada 1 tergugat";
+    if (!isPerdataCase) {
+      if (!data.preacheds.length || data.preacheds.some((p) => !p.trim())) {
+        errors.preached = "Minimal harus ada 1 Terdakwah";
+      }
+    } else {
+      if (!data.plaintiffs?.length || data.plaintiffs.some((p) => !p.trim())) {
+        errors.plaintiff = "Minimal harus ada 1 penggugat";
+      }
+
+      if (!data.defendants?.length || data.defendants.some((d) => !d.trim())) {
+        errors.defendant = "Minimal harus ada 1 tergugat";
+      }
     }
 
     if (!data.case_detail?.length || data.case_detail.some((c) => !c.trim())) {
@@ -117,9 +134,18 @@ export default function CreateSchedules({
       multipleDefendant: true,
       multipleJudge: true,
       multiplePlaintiff: true,
+      case_type: true,
+      multiplePreached: true,
     });
   }
 
+  const handleCaseTypeInput = useCallback((value: "perdata" | "pidana") => {
+    if (value === "perdata") {
+      setIsPerdatacase(true);
+    } else {
+      setIsPerdatacase(false);
+    }
+  }, []);
   return (
     <Modal ref={ref}>
       {/* w-8/12  */}
@@ -133,6 +159,14 @@ export default function CreateSchedules({
                 validationErrors.case_number &&
                 ErrorMessageRendered(validationErrors.case_number)
               }
+            />
+            <CaseTypeInput
+              isResetField={resetFormValue?.case_type}
+              errorMessage={
+                validationErrors.case_type &&
+                ErrorMessageRendered(validationErrors.case_type)
+              }
+              onSendValue={handleCaseTypeInput}
             />
             <PaniteraInput
               registrarData={personnelData}
@@ -149,22 +183,36 @@ export default function CreateSchedules({
                 ErrorMessageRendered(validationErrors.case_detail)
               }
             />
-            <MultiplePlaintiff
-              plaintiffData={personnelData}
-              isResetField={resetFormValue?.multiplePlaintiff}
-              errorMessage={
-                validationErrors.plaintiff &&
-                ErrorMessageRendered(validationErrors.plaintiff)
-              }
-            />
-            <MultipleDefendant
-              defendantData={personnelData}
-              isResetField={resetFormValue?.multipleDefendant}
-              errorMessage={
-                validationErrors.defendant &&
-                ErrorMessageRendered(validationErrors.defendant)
-              }
-            />
+            {!isPerdataCase && (
+              <MultiplePreached
+                preachedData={personnelData}
+                isResetField={resetFormValue?.multiplePreached}
+                errorMessage={
+                  validationErrors.preached &&
+                  ErrorMessageRendered(validationErrors.preached)
+                }
+              />
+            )}
+            {isPerdataCase && (
+              <>
+                <MultiplePlaintiff
+                  plaintiffData={personnelData}
+                  isResetField={resetFormValue?.multiplePlaintiff}
+                  errorMessage={
+                    validationErrors.plaintiff &&
+                    ErrorMessageRendered(validationErrors.plaintiff)
+                  }
+                />
+                <MultipleDefendant
+                  defendantData={personnelData}
+                  isResetField={resetFormValue?.multipleDefendant}
+                  errorMessage={
+                    validationErrors.defendant &&
+                    ErrorMessageRendered(validationErrors.defendant)
+                  }
+                />
+              </>
+            )}
             <MultipleJudges
               judgeData={personnelData}
               isResetField={resetFormValue?.multipleJudge}

@@ -11,17 +11,17 @@ import { IPersonnelDataTable } from "../../personnel/types/personnel";
 interface IProps {
   errorMessage?: ReactNode;
   isResetField?: boolean;
-  defendantData: IPersonnelDataTable[];
+  preachedData: IPersonnelDataTable[];
 }
 
-function MultipleDefendant({
+function MultiplePreached({
   errorMessage,
   isResetField,
-  defendantData,
+  preachedData,
 }: IProps) {
-  const [fieldDefendant, setFieldDefendant] = useState([1]);
+  const [fieldPreached, setFieldPreached] = useState([1]);
   const [enteredValue, setEnteredValue] = useState<string[]>([""]);
-  const [defendants, setDefendants] = useState<IPersonnelDataTable[]>([]);
+  const [preached, setPreacheds] = useState<IPersonnelDataTable[]>([]);
 
   function handleSelectInputChange(
     event: ChangeEvent<HTMLSelectElement>,
@@ -37,24 +37,24 @@ function MultipleDefendant({
   }
 
   function handleAddField() {
-    setFieldDefendant((prev) => [...prev, prev.length + 1]);
+    setFieldPreached((prev) => [...prev, prev.length + 1]);
     setEnteredValue((prev) => [...prev, ""]);
   }
 
   useEffect(() => {
     if (isResetField) {
       setEnteredValue([]);
-      setFieldDefendant([1]);
+      setFieldPreached([1]);
     }
   }, [isResetField]);
 
   useEffect(() => {
-    setDefendants(() =>
-      defendantData.filter(
-        (item) => item.role_name.toLowerCase() === "tergugat"
+    setPreacheds(() =>
+      preachedData.filter(
+        (item) => item.role_name.toLowerCase() === "terdakwah"
       )
     );
-  }, [defendantData]);
+  }, [preachedData]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -66,11 +66,11 @@ function MultipleDefendant({
         const data = localStorageUtils.get<ISchedulePayload>("newSchedule");
         localStorageUtils.set("newSchedule", {
           ...data,
-          defendants: filteredValues || "",
+          preacheds: filteredValues || "",
         });
       } else {
         localStorageUtils.set("newSchedule", {
-          defendants: filteredValues || "",
+          preacheds: filteredValues || "",
         });
       }
     }, 1000);
@@ -82,11 +82,11 @@ function MultipleDefendant({
 
   return (
     <>
-      {fieldDefendant.map((item, index) => (
+      {fieldPreached.map((item, index) => (
         <Label
           key={item}
           labelType="form-control"
-          leftLabel={`Tergugat ${index + 1}`}
+          leftLabel={`Terdakwah ${index + 1}`}
           bottomLeftLabel={errorMessage}
         >
           <Select
@@ -99,7 +99,7 @@ function MultipleDefendant({
             <option value="" disabled>
               Pilih satu
             </option>
-            {defendants.map((item: IPersonnelDataTable) => (
+            {preached.map((item: IPersonnelDataTable) => (
               <option key={item.id} value={item.id}>
                 {item.name}
               </option>
@@ -112,7 +112,7 @@ function MultipleDefendant({
           type: "button",
           className: "btn btn-primary btn-outline btn-sm",
           onClick: handleAddField,
-          disabled: defendants.length === 1,
+          disabled: preached.length === 1,
         }}
       >
         <Icon icon="material-symbols:add-2-rounded" width="24" height="24" />
@@ -122,4 +122,4 @@ function MultipleDefendant({
   );
 }
 
-export default memo(MultipleDefendant);
+export default memo(MultiplePreached);
