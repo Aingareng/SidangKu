@@ -37,6 +37,7 @@ import {
   TypeUser,
 } from "../../../features/schedules/types/schedules";
 import { useToast } from "../../../shared/hooks/useToast";
+import { useNavigate } from "react-router-dom";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
@@ -49,6 +50,7 @@ export default function CaseHistoryPage() {
   });
   const [searchFilterValue, setSearchFilterValue] = useState("");
   const [selectFilterValue, setSelectFilterValue] = useState("");
+  const navigate = useNavigate();
 
   const { schedules, isFetched, deleteSchedule, updateSchedule } = useSchedules(
     {
@@ -114,8 +116,21 @@ export default function CaseHistoryPage() {
       }
     }
   }
+
   function handleAddSchedule() {
-    scheduleDialog.current?.showModal();
+    if (personnels && personnels.length > 0) {
+      scheduleDialog.current?.showModal();
+      return;
+    }
+
+    showToast({
+      type: "warning",
+      message: "Perlu menambahkan data pihak",
+    });
+
+    setTimeout(() => {
+      navigate("/personnel");
+    }, 1000);
   }
 
   const btnAttr = {

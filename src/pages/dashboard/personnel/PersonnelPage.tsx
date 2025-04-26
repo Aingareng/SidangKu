@@ -11,11 +11,12 @@ import CreatePersonnel from "../../../features/personnel/components/CreatePerson
 import EmptyTableData from "../../../shared/components/molecules/EmptyTable";
 import { formatString } from "../../../shared/utils/stringFormatter";
 import { useToast } from "../../../shared/hooks/useToast";
+import Badge from "../../../shared/components/atoms/Badge";
 
 export default function PersonnelPage() {
   const tableHead = ["Nama", "Jabatan/Peran", "Status", "Aksi"];
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const isUpdate = useRef<boolean>(false);
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
   const { Toast, showToast } = useToast();
   const [sendingStatus, setSendingStatus] = useState<number | undefined>();
 
@@ -37,7 +38,7 @@ export default function PersonnelPage() {
 
   async function handleAction(id: number, key: string) {
     if (key === "UPDATE" && id) {
-      isUpdate.current = true;
+      setIsUpdate(true);
       setSelectUser(id);
       dialogRef.current?.showModal();
     }
@@ -61,6 +62,11 @@ export default function PersonnelPage() {
 
   const handleOnSendStatus = useCallback((statusCode: number | undefined) => {
     setSendingStatus(statusCode);
+
+    if (statusCode === 201) {
+      dialogRef.current?.close();
+      setSelectUser(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -97,6 +103,12 @@ export default function PersonnelPage() {
         email: "",
       };
 
+  function handleAddPersonnel() {
+    setIsUpdate(false);
+    setSelectUser(null);
+    dialogRef.current?.showModal();
+  }
+
   return (
     <div className="grid grid-cols-1 gap-5">
       <Toast />
@@ -107,11 +119,7 @@ export default function PersonnelPage() {
             attributes={{
               className: "btn btn-primary",
               type: "button",
-              onClick: () => {
-                isUpdate.current = false;
-                setSelectUser(null);
-                dialogRef.current?.showModal();
-              },
+              onClick: handleAddPersonnel,
             }}
           >
             <Icon
@@ -139,7 +147,23 @@ export default function PersonnelPage() {
                   <th>{index + 1}</th>
                   <td>{formatString(item.name, "capitalize")}</td>
                   <td>{formatString(item.role_name, "capitalize")}</td>
-                  <td>{formatString(item.user_status, "capitalize")}</td>
+                  <td>
+                    <Badge
+                      colorType={
+                        formatString(item.user_status, "lowercase") ===
+                        "inactive"
+                          ? "badge-primary"
+                          : "badge-success"
+                      }
+                      isOutline
+                      label={
+                        formatString(item.user_status, "lowercase") ===
+                        "inactive"
+                          ? "Belum Terjadwal"
+                          : "Terjadwal"
+                      }
+                    />
+                  </td>
                   <th>
                     <Dropdown
                       itemIndex={item.id}
@@ -186,7 +210,7 @@ export default function PersonnelPage() {
       <CreatePersonnel
         ref={dialogRef}
         initialValue={initialValue}
-        isUpdate={isUpdate.current}
+        isUpdate={isUpdate}
         onSendingStatus={handleOnSendStatus}
       />
     </div>

@@ -74,6 +74,11 @@ function CreatePersonnel({
   });
   const { createPersonnel } = usePersonnel();
 
+  const [sendingStatus, setSendingStatus] = useState({
+    isPending: false,
+    isError: false,
+  });
+
   function handleSelectChange(event: ChangeEvent<HTMLSelectElement>) {
     setFormData((prev) => ({
       ...prev,
@@ -104,6 +109,7 @@ function CreatePersonnel({
       // Validasi dengan Zod
       const validatedData = formSchema.parse(data);
 
+      setSendingStatus((prev) => ({ ...prev, isPending: true }));
       // Jika validasi berhasil, lakukan aksi submit
       const result = await createPersonnel({
         name: validatedData.name,
@@ -112,6 +118,7 @@ function CreatePersonnel({
         role_id: validatedData.role_id,
         phone: validatedData.phone, // Ensure phone is included
       });
+      setSendingStatus((prev) => ({ ...prev, isPending: false }));
 
       onSendingStatus?.(result?.status);
 
@@ -298,9 +305,17 @@ function CreatePersonnel({
           </main>
           <footer className="flex items-center justify-end">
             <Button
-              attributes={{ type: "submit", className: "btn btn-primary" }}
+              attributes={{
+                type: "submit",
+                className: "btn btn-primary",
+                disabled: sendingStatus.isPending,
+              }}
             >
-              {isUpdate ? "Ubah" : "Tambah"}
+              {sendingStatus.isPending
+                ? "Sedang mengirim..."
+                : isUpdate
+                ? "Ubah"
+                : "Tambah"}
             </Button>
           </footer>
         </Form>

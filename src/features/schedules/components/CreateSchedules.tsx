@@ -164,6 +164,7 @@ export default function CreateSchedules({
       setIsPerdatacase(false);
     }
   }, []);
+
   return (
     <Modal ref={ref}>
       {/* w-8/12  */}
@@ -248,7 +249,7 @@ export default function CreateSchedules({
                 disabled: sendingStatus.isPending,
               }}
             >
-              Tentukan
+              {sendingStatus.isPending ? "Sedang mengirim..." : "Tentukan"}
             </Button>
           </footer>
         </Form>
