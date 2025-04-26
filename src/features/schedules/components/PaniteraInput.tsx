@@ -36,8 +36,8 @@ export default function PaniteraInput({
     setRegistrars(() =>
       registrarData.filter(
         (item: IPersonnelDataTable) =>
-          item.role_name.toLowerCase() === "panitera" ||
-          item.role_name.toLowerCase() === "panitera pengganti"
+          item.role_name.toLowerCase().replace(/\s+/g, "") ===
+          "paniterapengganti"
       )
     );
   }, [registrarData]);

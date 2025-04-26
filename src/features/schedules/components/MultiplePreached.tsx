@@ -50,9 +50,7 @@ function MultiplePreached({
 
   useEffect(() => {
     setPreacheds(() =>
-      preachedData.filter(
-        (item) => item.role_name.toLowerCase() === "terdakwah"
-      )
+      preachedData.filter((item) => item.role_name.toLowerCase() === "terdakwa")
     );
   }, [preachedData]);
 
