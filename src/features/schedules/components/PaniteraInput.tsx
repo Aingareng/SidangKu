@@ -67,7 +67,7 @@ export default function PaniteraInput({
   return (
     <Label
       labelType="form-control"
-      leftLabel="Panitera"
+      leftLabel="Panitera Pengganti"
       bottomLeftLabel={errorMessage}
     >
       <Select
