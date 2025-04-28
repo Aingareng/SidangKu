@@ -3,7 +3,7 @@ export interface IPersonnelPayload {
   role_id: string;
   email?: string;
   phone?: string;
-  password: string;
+  password?: string;
 }
 
 export interface IPersonnelDataTable {
