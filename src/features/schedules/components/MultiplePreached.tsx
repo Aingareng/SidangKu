@@ -89,7 +89,9 @@ function MultiplePreached({
         >
           <Select
             attr={{
-              className: "select select-bordered w-full ",
+              className: `select select-bordered w-full ${
+                errorMessage ? "select-error" : ""
+              }`,
               value: enteredValue[index] || "",
               onChange: (e) => handleSelectInputChange(e, index),
             }}

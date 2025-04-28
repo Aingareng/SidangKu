@@ -123,6 +123,13 @@ export default function CreateSchedules({
       setSendingStatus((prev) => ({ ...prev, isPending: false }));
       resetForm();
       onClose?.();
+    } else if (result?.status === 400) {
+      onSendingStatus?.(result.status);
+      setSendingStatus(() => ({ isError: true, isPending: false }));
+      setValidationErrors({
+        case_number: "Nomor perkara sudah terdaftar",
+      });
+      return;
     } else {
       onSendingStatus?.(result?.status as number);
       resetForm();

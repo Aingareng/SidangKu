@@ -4,7 +4,7 @@ import { IAuthPayload } from "../types/auth";
 
 export async function auth(payload: IAuthPayload) {
   try {
-    let response = await api.post<IApiResponse<{ role: string } | null>>(
+    let response = await api.post<IApiResponse<{ role: string,name:string } | null>>(
       "/auth/login",
       payload
     );

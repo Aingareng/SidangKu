@@ -74,7 +74,9 @@ function MultipleAgenda({ errorMessage, isResetField }: IProps) {
           <Input
             attributes={{
               type: "text",
-              className: "input input-bordered w-full",
+              className: `input input-bordered w-full ${
+                errorMessage ? "input-error" : ""
+              }`,
               placeholder: "Masukan Agenda",
               value: enteredValue[index] || "",
               onChange: (e) => handleTextInputChange(e, index),

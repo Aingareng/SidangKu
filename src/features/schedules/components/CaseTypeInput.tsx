@@ -62,7 +62,10 @@ export default function CaseTypeInput({
     >
       <Select
         attr={{
-          className: "select select-bordered w-full",
+          className: `select select-bordered w-full ${
+            errorMessage ? "select-error" : ""
+          }`,
+          name: "case_type",
           value: enteredValue || "",
           onChange: (e) => handleSelectInputChange(e),
         }}

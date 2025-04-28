@@ -6,4 +6,5 @@ export interface IAuthPayload {
 export interface IAuthData {
   isLogin: boolean;
   role: string;
+  name: string;
 }

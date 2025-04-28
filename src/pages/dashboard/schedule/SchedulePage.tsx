@@ -50,6 +50,8 @@ export default function CaseHistoryPage() {
   });
   const [searchFilterValue, setSearchFilterValue] = useState("");
   const [selectFilterValue, setSelectFilterValue] = useState("");
+  const [queueFieldError, setQueueFieldError] = useState<string | undefined>();
+
   const navigate = useNavigate();
 
   const { schedules, isFetched, deleteSchedule, updateSchedule } = useSchedules(
@@ -80,6 +82,16 @@ export default function CaseHistoryPage() {
   useEffect(() => {
     setvalue(personnels);
   }, [personnels, setvalue]);
+
+  useEffect(() => {
+    if (!dialogRef.current?.open) {
+      setTrialValue({
+        location: "",
+        queue_number: "",
+      });
+      setQueueFieldError(undefined);
+    }
+  }, [dialogRef?.current?.open]);
 
   const { Toast, showToast } = useToast();
 
@@ -205,6 +217,10 @@ export default function CaseHistoryPage() {
           });
           dialogRef.current?.close();
         }
+
+        if (updateResult.status === 400) {
+          setQueueFieldError(updateResult.message);
+        }
       }
     }
   }
@@ -231,10 +247,11 @@ export default function CaseHistoryPage() {
             return [
               "tanggal",
               "nomor perkara",
+              "tipe perkara",
               "agenda",
               "nomor antrian",
               "ruang sidang",
-              "",
+              // "",
             ].includes(th.toLowerCase());
           })
           .map((item) => (
@@ -290,34 +307,36 @@ export default function CaseHistoryPage() {
 
             <td>{item.queue_number}</td>
             <td>{item.location}</td>
-            <th>
-              <Dropdown>
-                <List>
-                  <Button
-                    attributes={{
-                      type: "button",
-                      onClick: () => handleAction(item.id, "SET_HEARING"),
-                      className: "w-full text-left",
-                    }}
-                  >
-                    <Icon icon="mdi:gavel" className="mr-2" />
-                    Tentukan Sidang
-                  </Button>
-                </List>
-                <List>
-                  <Button
-                    attributes={{
-                      type: "button",
-                      onClick: () => handleAction(item.id, "DELETE"),
-                      className: "w-full text-left text-red-600",
-                    }}
-                  >
-                    <Icon icon="mdi:trash-can-outline" className="mr-2" />
-                    Hapus
-                  </Button>
-                </List>
-              </Dropdown>
-            </th>
+            {user.isAuthority && (
+              <th>
+                <Dropdown>
+                  <List>
+                    <Button
+                      attributes={{
+                        type: "button",
+                        onClick: () => handleAction(item.id, "SET_HEARING"),
+                        className: "w-full text-left",
+                      }}
+                    >
+                      <Icon icon="mdi:gavel" className="mr-2" />
+                      Tentukan Sidang
+                    </Button>
+                  </List>
+                  <List>
+                    <Button
+                      attributes={{
+                        type: "button",
+                        onClick: () => handleAction(item.id, "DELETE"),
+                        className: "w-full text-left text-red-600",
+                      }}
+                    >
+                      <Icon icon="mdi:trash-can-outline" className="mr-2" />
+                      Hapus
+                    </Button>
+                  </List>
+                </Dropdown>
+              </th>
+            )}
           </tr>
         ))}
     </>
@@ -329,14 +348,16 @@ export default function CaseHistoryPage() {
       <header>
         <div className=" flex justify-between items-center">
           <h1 className="text-3xl font-bold">Jadwal Sidang</h1>
-          <Button attributes={btnAttr}>
-            <Icon
-              icon="material-symbols:add-2-rounded"
-              width="24"
-              height="24"
-            />
-            Tambah Jadwal
-          </Button>
+          {user.isAuthority && user.role?.toLowerCase() === "admin" && (
+            <Button attributes={btnAttr}>
+              <Icon
+                icon="material-symbols:add-2-rounded"
+                width="24"
+                height="24"
+              />
+              Tambah Jadwal
+            </Button>
+          )}
         </div>
       </header>
       <main className="bg-base-100 p-4 grid grid-cols-1 gap-4  rounded-2xl">
@@ -405,6 +426,8 @@ export default function CaseHistoryPage() {
         onSendingStatus={handleSendingStatus}
       />
 
+      {/* Modal Penetapan Sidang */}
+
       <Modal ref={dialogRef}>
         <div className="grid grid-cols-1 gap-4  w-8/12  ">
           <h1 className="text-2xl font-bold text-center">Tetapkan sidang</h1>
@@ -415,13 +438,25 @@ export default function CaseHistoryPage() {
             }}
           >
             <main>
-              <Label labelType="form-control" leftLabel="Nomor Antrian">
+              <Label
+                labelType="form-control"
+                leftLabel="Nomor Antrian"
+                bottomLeftLabel={
+                  <div className="label">
+                    <span className="label-text-alt text-error">
+                      {queueFieldError}
+                    </span>
+                  </div>
+                }
+              >
                 <Input
                   attributes={{
                     name: "queue_number",
                     type: "number",
                     min: 0,
-                    className: "input input-bordered w-full",
+                    className: `input input-bordered w-full ${
+                      queueFieldError ? "input-error" : ""
+                    }`,
                     value: trialValue?.queue_number || "",
                     onChange: (e: ChangeEvent<HTMLInputElement>) => {
                       setTrialValue((prev) => {

@@ -72,7 +72,10 @@ export default function PaniteraInput({
     >
       <Select
         attr={{
-          className: "select select-bordered w-full",
+          className: `select select-bordered w-full ${
+            errorMessage ? "select-error" : ""
+          }`,
+          name: "registrar",
           value: enteredValue || "",
           onChange: (e) => handleSelectInputChange(e),
         }}

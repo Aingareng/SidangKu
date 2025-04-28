@@ -84,6 +84,7 @@ const LoginForm = () => {
       localStorageUtils.set<IAuthData>("user", {
         isLogin: true,
         role: response.data?.role as string,
+        name: response.data?.name as string,
       });
 
       navigate("/", { replace: true });
