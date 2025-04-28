@@ -259,39 +259,39 @@ export default function CaseHistoryPage() {
                 <td>
                   {item.preacheds
                     ? item.preacheds.map((preached) => (
-                        <p key={preached.id}>{preached.name}</p>
+                        <p key={preached.id}>{preached.name || ""}</p>
                       ))
                     : []}
                 </td>
                 <td>
                   {item.plaintiffs
                     ? item.plaintiffs.map((plaintiffs) => (
-                        <p key={plaintiffs.id}>{plaintiffs.name}</p>
+                        <p key={plaintiffs.id}>{plaintiffs.name || ""}</p>
                       ))
                     : []}
                 </td>
                 <td>
                   {item.defendants
                     ? item.defendants.map((defendant) => (
-                        <p key={defendant.id}>{defendant.name}</p>
+                        <p key={defendant.id}>{defendant.name || ""}</p>
                       ))
                     : []}
                 </td>
                 <td>
                   {item.judges
                     ? item.judges.map((judge) => (
-                        <p key={judge.id}>{judge.name}</p>
+                        <p key={judge.id}>{judge.name || ""}</p>
                       ))
                     : []}
                 </td>
-                <td>{(item.registrar as TypeUser).name}</td>
+                <td>{(item.registrar as TypeUser).name || ""}</td>
               </>
             )}
 
             <td>{item.queue_number}</td>
             <td>{item.location}</td>
             <th>
-              <Dropdown itemIndex={item.id}>
+              <Dropdown>
                 <List>
                   <Button
                     attributes={{

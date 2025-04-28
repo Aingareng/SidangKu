@@ -12,8 +12,7 @@ export default function Router() {
         <Route path="/login" element={<LoginPage />} />
         <Route element={<Authenticated />}>
           <Route element={<DashboardLayout />}>
-            <Route path="/" element={<h1>Home Page</h1>} />
-            <Route path="/schedules" element={<SchedulePage />} />
+            <Route path="/" element={<SchedulePage />} />
             <Route path="/personnel" element={<PersonnelPage />} />
           </Route>
         </Route>

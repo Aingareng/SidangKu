@@ -4,7 +4,6 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import Menu from "../molecules/Menu";
 import { MenuAttributes } from "../../libs/elementAttributes";
 import List from "../atoms/List";
-import Submenu from "../molecules/Submenu";
 import getInitials from "../../utils/initialString";
 
 export default function Navbar() {
@@ -32,34 +31,12 @@ export default function Navbar() {
             <List>
               <Link to="/">
                 <Icon
-                  icon="material-symbols:home-outline-rounded"
+                  icon="material-symbols:book-5-rounded"
                   width="24"
                   height="24"
                 />
-                Beranda
+                Jadwal Sidang
               </Link>
-            </List>
-
-            <List>
-              <Submenu
-                label={
-                  <>
-                    {" "}
-                    <Icon
-                      icon="material-symbols:book-5-rounded"
-                      width="24"
-                      height="24"
-                    />
-                    Sidang
-                  </>
-                }
-              >
-                <ul>
-                  <List>
-                    <Link to="/schedules">Jadwal Sidang</Link>
-                  </List>
-                </ul>
-              </Submenu>
             </List>
 
             <List>
