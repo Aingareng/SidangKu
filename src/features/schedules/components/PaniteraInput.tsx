@@ -36,8 +36,7 @@ export default function PaniteraInput({
     setRegistrars(() =>
       registrarData.filter(
         (item: IPersonnelDataTable) =>
-          item.role_name.toLowerCase().replace(/\s+/g, "") ===
-          "paniterapengganti"
+          item.role_name.toLowerCase().replace(/\s+/g, "") === "panitera"
       )
     );
   }, [registrarData]);
@@ -67,7 +66,7 @@ export default function PaniteraInput({
   return (
     <Label
       labelType="form-control"
-      leftLabel="Panitera Pengganti"
+      leftLabel="Panitera"
       bottomLeftLabel={errorMessage}
     >
       <Select

@@ -163,9 +163,9 @@ function CreatePersonnel({
     try {
       const data = {
         name: formData.get("name"),
-        email: formData.get("email"),
-        phone: formData.get("phone"),
-        password: formData.get("password"),
+        email: formData.get("email") ?? undefined,
+        phone: formData.get("phone") ?? undefined,
+        password: formData.get("password") ?? undefined,
         role_id: formData.get("role_id") ?? "",
       };
 
@@ -192,6 +192,7 @@ function CreatePersonnel({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors = error.flatten().fieldErrors;
+        console.log("🚀 ~ submitForm ~ errors:", errors);
         setFormErrors(errors);
         return {
           errors: errors,

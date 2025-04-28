@@ -38,10 +38,12 @@ import {
 } from "../../../features/schedules/types/schedules";
 import { useToast } from "../../../shared/hooks/useToast";
 import { useNavigate } from "react-router-dom";
+import ClerckFormInput from "../../../features/schedules/components/ClerckFormInput";
 
 export default function CaseHistoryPage() {
   MenuAttributes.className = "menu menu-horizontal bg-base-200 rounded-box";
 
+  const clerckDialogRef = useRef<HTMLDialogElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const scheduleDialog = useRef<HTMLDialogElement>(null);
   const [enteredValues, setEnteredValues] = useState<FilterValues>({
@@ -62,7 +64,7 @@ export default function CaseHistoryPage() {
   );
   const { personnels } = usePersonnel();
   const [, setvalue] = useLocalStorage("personnels", []);
-  const itemSelectId = useRef<number | null>(null);
+  const [itemSelectId, setItemId] = useState<number | null>(null);
   const [tableHead] = useState([
     "Tanggal",
     "Nomor Perkara",
@@ -110,7 +112,12 @@ export default function CaseHistoryPage() {
   }, [sendingStatus]);
 
   async function handleAction(id: number, key: string) {
-    itemSelectId.current = id;
+    setItemId(id);
+
+    if (key === "SET_CLERK") {
+      clerckDialogRef.current?.showModal();
+    }
+
     if (key === "SET_HEARING" && id) {
       dialogRef.current?.showModal();
     }
@@ -166,10 +173,10 @@ export default function CaseHistoryPage() {
   async function handleSetTrial(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const schedule = schedules?.find(
-      (schedule) => schedule.id === itemSelectId.current
+      (schedule) => schedule.id === itemSelectId
     );
 
-    if (typeof itemSelectId.current === "number") {
+    if (typeof itemSelectId === "number") {
       const payload: ISchedulePayload = {
         case_number: schedule?.case_number as string,
         case_type: schedule?.case_type as "perdata" | "pidana",
@@ -196,7 +203,7 @@ export default function CaseHistoryPage() {
       };
 
       const updateResult = await updateSchedule({
-        id: itemSelectId.current,
+        id: itemSelectId,
         payload,
       });
 
@@ -301,7 +308,7 @@ export default function CaseHistoryPage() {
                       ))
                     : []}
                 </td>
-                <td>{(item.registrar as TypeUser).name || ""}</td>
+                <td>{(item.registrar as TypeUser)?.name || ""}</td>
               </>
             )}
 
@@ -309,25 +316,55 @@ export default function CaseHistoryPage() {
             <td>{item.location}</td>
             {user.isAuthority && (
               <th>
-                <Dropdown>
-                  <List>
-                    <Button
-                      attributes={{
-                        type: "button",
-                        onClick: () => handleAction(item.id, "SET_HEARING"),
-                        className: "w-full text-left",
-                      }}
-                    >
-                      <Icon icon="mdi:gavel" className="mr-2" />
-                      Tentukan Sidang
-                    </Button>
-                  </List>
+                <Dropdown itemIndex={idx + 1} tableLength={schedules.length}>
+                  {user.isAuthority &&
+                    ["hakim"].includes(user.role?.toLowerCase() || "") && (
+                      <List>
+                        <Button
+                          attributes={{
+                            type: "button",
+                            onClick: () => {
+                              if (item.registrar === null) {
+                                showToast({
+                                  type: "warning",
+                                  message:
+                                    "Panitera pengganti belum ditentukan",
+                                });
+                                return;
+                              }
+                              handleAction(item.id, "SET_HEARING");
+                            },
+                            className: "w-full text-left ",
+                          }}
+                        >
+                          <Icon icon="mdi:gavel" className="mr-2" />
+                          Tentukan Sidang
+                        </Button>
+                      </List>
+                    )}
+                  {user.isAuthority &&
+                    ["panitera"].includes(user.role?.toLowerCase() || "") && (
+                      <List>
+                        <Button
+                          attributes={{
+                            type: "button",
+                            onClick: () => handleAction(item.id, "SET_CLERK"),
+                            className: "w-full text-left text-sm",
+                          }}
+                        >
+                          <Icon icon="mdi:gavel" className="mr-2" />
+                          <span className="whitespace-nowrap">
+                            Pilih Panitera pengganti
+                          </span>
+                        </Button>
+                      </List>
+                    )}
                   <List>
                     <Button
                       attributes={{
                         type: "button",
                         onClick: () => handleAction(item.id, "DELETE"),
-                        className: "w-full text-left text-red-600",
+                        className: "w-full text-left text-red-600 ",
                       }}
                     >
                       <Icon icon="mdi:trash-can-outline" className="mr-2" />
@@ -343,7 +380,7 @@ export default function CaseHistoryPage() {
   );
 
   return (
-    <section className="grid grid-cols-1 gap-5">
+    <section className="grid grid-cols-1 gap-5 ">
       <Toast />
       <header>
         <div className=" flex justify-between items-center">
@@ -360,7 +397,7 @@ export default function CaseHistoryPage() {
           )}
         </div>
       </header>
-      <main className="bg-base-100 p-4 grid grid-cols-1 gap-4  rounded-2xl">
+      <main className="bg-base-100 p-4 grid grid-cols-1 gap-4   rounded-2xl">
         <TableFilter
           onSubmit={handleSubmitFilter}
           onReset={() => {
@@ -406,7 +443,7 @@ export default function CaseHistoryPage() {
           }}
         />
 
-        <div className="overflow-x-auto border rounded-2xl bg-base-100">
+        <div className="overflow-x-auto  border rounded-2xl bg-base-100">
           {isFetched && schedules && schedules.length === 0 ? (
             <EmptyTableData />
           ) : (
@@ -427,6 +464,11 @@ export default function CaseHistoryPage() {
       />
 
       {/* Modal Penetapan Sidang */}
+
+      <ClerckFormInput
+        ref={clerckDialogRef}
+        schedule_id={itemSelectId as number}
+      />
 
       <Modal ref={dialogRef}>
         <div className="grid grid-cols-1 gap-4  w-8/12  ">

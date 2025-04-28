@@ -1,4 +1,3 @@
-// components/molecules/Dropdown.tsx
 import Menu from "./Menu";
 import Button from "../atoms/Button";
 import { Icon } from "@iconify/react";
@@ -33,7 +32,7 @@ export default function Dropdown({ itemIndex, children, tableLength }: IProps) {
         attributes={{
           tabIndex: 0,
           className:
-            "dropdown-content shadow-md menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow",
+            "dropdown-content shadow-md menu bg-base-100 rounded-box z-[1] w-max p-2 shadow",
         }}
       >
         {children}

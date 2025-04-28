@@ -6,10 +6,12 @@ import {
   ISchedulesData,
 } from "../types/schedules";
 
+const PREFIX = "/schedules";
+
 export async function create(payload: ISchedulePayload) {
   try {
     const response = await api.post<IApiResponse<ISchedulePayload>>(
-      "/schedules",
+      PREFIX,
       payload
     );
     return response;
@@ -20,12 +22,9 @@ export async function create(payload: ISchedulePayload) {
 
 export async function get(params: IQuerySchedulesParams) {
   try {
-    const response = await api.get<IApiResponse<ISchedulesData[]>>(
-      "/schedules",
-      {
-        ...params,
-      }
-    );
+    const response = await api.get<IApiResponse<ISchedulesData[]>>(PREFIX, {
+      ...params,
+    });
     return response.data;
   } catch (error) {
     console.error(error);
@@ -34,7 +33,7 @@ export async function get(params: IQuerySchedulesParams) {
 
 export async function destroy(id: string) {
   try {
-    const response = await api.delete<IApiResponse<null>>(`/schedules/${id}`);
+    const response = await api.delete<IApiResponse<null>>(`${PREFIX}/${id}`);
     return response;
   } catch (error) {
     console.error(error);
@@ -53,3 +52,9 @@ export async function update(id: number, payload: ISchedulePayload) {
     console.error(error);
   }
 }
+
+export const updateClerk = async (schedule_id: number, user_id: number) =>
+  await api.post<IApiResponse<null>>(`${PREFIX}/set-cleck`, {
+    schedule_id,
+    user_id,
+  });

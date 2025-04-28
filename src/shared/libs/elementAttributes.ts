@@ -14,7 +14,7 @@ export const MenuAttributes: HTMLAttributes<HTMLMenuElement> = {
 export const ListAttributes: HTMLAttributes<HTMLLIElement> = {};
 export const DetailsAttributes: HTMLAttributes<HTMLDetailsElement> = {};
 export const TableAttributes: HTMLAttributes<HTMLTableElement> = {
-  className: "table",
+  className: "table overflow-y-visible h-max",
 };
 export const TableHeadAttributes: HTMLAttributes<HTMLTableSectionElement> = {};
 export const TableBodyAttributes: HTMLAttributes<HTMLTableSectionElement> = {};

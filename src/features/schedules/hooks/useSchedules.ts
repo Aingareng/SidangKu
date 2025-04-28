@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { IQuerySchedulesParams, ISchedulePayload } from "../types/schedules";
-import { create, destroy, get, update } from "../api/schedules";
+import { create, destroy, get, update, updateClerk } from "../api/schedules";
 
 export default function useSchedules(params?: IQuerySchedulesParams) {
   const queryClient = useQueryClient();
@@ -40,6 +40,19 @@ export default function useSchedules(params?: IQuerySchedulesParams) {
     },
   });
 
+  const updateClerkMutation = useMutation({
+    mutationFn: ({
+      schedule_id,
+      user_id,
+    }: {
+      schedule_id: number;
+      user_id: number;
+    }) => updateClerk(schedule_id, user_id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schedules"] });
+    },
+  });
+
   return {
     schedules,
     error,
@@ -51,5 +64,6 @@ export default function useSchedules(params?: IQuerySchedulesParams) {
     createSchedule: createMutation.mutateAsync,
     deleteSchedule: deleteMutation.mutateAsync,
     updateSchedule: updateMutation.mutateAsync,
+    updateClerck: updateClerkMutation.mutateAsync,
   };
 }
