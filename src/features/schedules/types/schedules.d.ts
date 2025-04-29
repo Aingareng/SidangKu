@@ -1,6 +1,12 @@
 type TypeScheduleStatus = "scheduled" | "pending" | "finished";
 type TypeCase = "perdata" | "pidana";
 type TypeUser = { id: number; name: string };
+type TypeCaseStatus =
+  | "planing"
+  | "pending"
+  | "in_progress"
+  | "resolved"
+  | "closed";
 export interface ISchedulesData {
   id: number;
   scheduled_date: string;
@@ -10,7 +16,7 @@ export interface ISchedulesData {
   status?: TypeScheduleStatus;
   case_number: string;
   case_type: TypeCase;
-  case_status: string;
+  case_status: TypeCaseStatus;
   user_name: string;
   role_name: string;
   plaintiffs?: TypeUser[];
@@ -28,7 +34,7 @@ export interface ISchedulePayload {
   preacheds: string[];
   case_detail?: string[];
   judges: string[];
-  registrar: string;
+  // registrar?: string;
   case_type: "perdata" | "pidana";
   location?: number;
   queue_number?: number;

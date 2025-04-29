@@ -47,7 +47,7 @@ export default function CaseTypeInput({
           case_type: enteredValue || "",
         });
       }
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(timer);

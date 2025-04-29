@@ -43,7 +43,7 @@ export default function CaseNumberInput({
           case_number: enteredValue || "",
         });
       }
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(timer);
@@ -60,7 +60,9 @@ export default function CaseNumberInput({
         attributes={{
           type: "text",
           name: "case_number",
-          className: `input input-bordered w-full ${errorMessage ? "input-error" : ""}`,
+          className: `input input-bordered w-full ${
+            errorMessage ? "input-error" : ""
+          }`,
           placeholder: "Cth : 123/Pdt.G/2025/PN Lbo",
           value: enteredValue || "",
           onChange: handleTextInputChange,

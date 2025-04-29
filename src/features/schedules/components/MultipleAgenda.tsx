@@ -55,7 +55,7 @@ function MultipleAgenda({ errorMessage, isResetField }: IProps) {
           case_detail: filteredValues || "",
         });
       }
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(timer);

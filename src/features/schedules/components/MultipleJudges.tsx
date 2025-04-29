@@ -67,7 +67,7 @@ function MultipleJudges({ errorMessage, isResetField, judgeData }: IProps) {
           judges: filteredValues || "",
         });
       }
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(timer);

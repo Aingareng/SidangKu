@@ -58,3 +58,7 @@ export const updateClerk = async (schedule_id: number, user_id: number) =>
     schedule_id,
     user_id,
   });
+export const pushNotification = async (schedule_id: number) =>
+  await api.post<IApiResponse<null>>(`${PREFIX}/send-notification`, {
+    schedule_id,
+  });

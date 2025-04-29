@@ -9,7 +9,7 @@ import { ISchedulePayload } from "../types/schedules";
 import MultipleDefendant from "./MultipleDefendant";
 import MultipleJudges from "./MultipleJudges";
 import CaseNumberInput from "./CaseNumberInput";
-import PaniteraInput from "./PaniteraInput";
+// import PaniteraInput from "./PaniteraInput";
 import useSchedules from "../hooks/useSchedules";
 import { IPersonnelDataTable } from "../../personnel/types/personnel";
 import CaseTypeInput from "./CaseTypeInput";
@@ -93,9 +93,9 @@ export default function CreateSchedules({
       errors.judges = "Minimal harus ada 1 hakim";
     }
 
-    if (!data.registrar?.trim()) {
-      errors.registrar = "Nama panitera wajib diisi";
-    }
+    // if (!data.registrar?.trim()) {
+    //   errors.registrar = "Nama panitera wajib diisi";
+    // }
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -194,14 +194,14 @@ export default function CreateSchedules({
               }
               onSendValue={handleCaseTypeInput}
             />
-            <PaniteraInput
+            {/* <PaniteraInput
               registrarData={personnelData}
               isResetField={resetFormValue?.registrar}
               errorMessage={
                 validationErrors.registrar &&
                 ErrorMessageRendered(validationErrors.registrar)
               }
-            />
+            /> */}
             <MultipleAgenda
               isResetField={resetFormValue?.multipleAgenda}
               errorMessage={

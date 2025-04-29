@@ -53,15 +53,20 @@ export default function CaseHistoryPage() {
   const [searchFilterValue, setSearchFilterValue] = useState("");
   const [selectFilterValue, setSelectFilterValue] = useState("");
   const [queueFieldError, setQueueFieldError] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
 
-  const { schedules, isFetched, deleteSchedule, updateSchedule } = useSchedules(
-    {
-      search: searchFilterValue,
-      select: selectFilterValue,
-    }
-  );
+  const {
+    schedules,
+    isFetched,
+    deleteSchedule,
+    updateSchedule,
+    pushNotification,
+  } = useSchedules({
+    search: searchFilterValue,
+    select: selectFilterValue,
+  });
   const { personnels } = usePersonnel();
   const [, setvalue] = useLocalStorage("personnels", []);
   const [itemSelectId, setItemId] = useState<number | null>(null);
@@ -116,6 +121,22 @@ export default function CaseHistoryPage() {
 
     if (key === "SET_CLERK") {
       clerckDialogRef.current?.showModal();
+    }
+    if (key === "PUSH_NOTIF") {
+      const result = await pushNotification(id);
+
+      if (result.status !== 201) {
+        showToast({
+          type: "error",
+          message: "Gagal mengirim notifikasi",
+        });
+        return;
+      }
+
+      showToast({
+        type: "success",
+        message: "Berhasil kirim notifikasi",
+      });
     }
 
     if (key === "SET_HEARING" && id) {
@@ -195,17 +216,19 @@ export default function CaseHistoryPage() {
           (schedule?.plaintiffs?.map((item) =>
             item.id.toString()
           ) as string[]) || [],
-        registrar:
-          ((schedule?.registrar as TypeUser).id.toString() as string) || "",
+        // registrar:
+        //   ((schedule?.registrar as TypeUser).id?.toString() as string) || "",
         case_detail: schedule?.case_details as string[],
         location: +(trialValue?.location as string),
         queue_number: +(trialValue?.queue_number as string),
       };
-
+      setIsLoading(true);
       const updateResult = await updateSchedule({
         id: itemSelectId,
         payload,
       });
+
+      setIsLoading(false);
 
       if (updateResult?.status !== undefined) {
         showToast({
@@ -359,6 +382,37 @@ export default function CaseHistoryPage() {
                         </Button>
                       </List>
                     )}
+                  {user.isAuthority &&
+                    ["admin"].includes(user.role?.toLowerCase() || "") &&
+                    item.registrar && (
+                      <List>
+                        <Button
+                          attributes={{
+                            type: "button",
+                            onClick: () => {
+                              if (item.case_status === "in_progress") {
+                                showToast({
+                                  type: "info",
+                                  message: "Notifikasi telah dikirimkan",
+                                });
+                                return;
+                              }
+
+                              handleAction(item.id, "PUSH_NOTIF");
+                            },
+                            className: "w-full text-left text-sm",
+                          }}
+                        >
+                          <Icon
+                            icon="material-symbols:phone-forwarded"
+                            className=""
+                          />
+                          <span className="whitespace-nowrap">
+                            Kirim Notifikasi
+                          </span>
+                        </Button>
+                      </List>
+                    )}
                   <List>
                     <Button
                       attributes={{
@@ -367,7 +421,7 @@ export default function CaseHistoryPage() {
                         className: "w-full text-left text-red-600 ",
                       }}
                     >
-                      <Icon icon="mdi:trash-can-outline" className="mr-2" />
+                      <Icon icon="mdi:trash-can-outline" />
                       Hapus
                     </Button>
                   </List>
@@ -536,9 +590,10 @@ export default function CaseHistoryPage() {
                 attributes={{
                   type: "submit",
                   className: "btn btn-active btn-primary",
+                  disabled: isLoading,
                 }}
               >
-                Tentukan
+                {isLoading ? "Mengirim..." : "Tetapkan"}
               </Button>
             </footer>
           </Form>
