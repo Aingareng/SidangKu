@@ -34,7 +34,7 @@ export interface ISchedulePayload {
   preacheds: string[];
   case_detail?: string[];
   judges: string[];
-  // registrar?: string;
+  registrar?: string;
   case_type: "perdata" | "pidana";
   location?: number;
   queue_number?: number;

@@ -198,6 +198,10 @@ export default function CaseHistoryPage() {
     );
 
     if (typeof itemSelectId === "number") {
+      console.log(
+        "🚀 ~ handleSetTrial ~ payload: ISchedulePayload.schedule:",
+        schedule
+      );
       const payload: ISchedulePayload = {
         case_number: schedule?.case_number as string,
         case_type: schedule?.case_type as "perdata" | "pidana",
@@ -216,8 +220,8 @@ export default function CaseHistoryPage() {
           (schedule?.plaintiffs?.map((item) =>
             item.id.toString()
           ) as string[]) || [],
-        // registrar:
-        //   ((schedule?.registrar as TypeUser).id?.toString() as string) || "",
+        registrar:
+          ((schedule?.registrar as TypeUser).id?.toString() as string) || "0",
         case_detail: schedule?.case_details as string[],
         location: +(trialValue?.location as string),
         queue_number: +(trialValue?.queue_number as string),
@@ -339,7 +343,7 @@ export default function CaseHistoryPage() {
             <td>{item.location}</td>
             {user.isAuthority && (
               <th>
-                <Dropdown itemIndex={idx + 1} tableLength={schedules.length}>
+                <Dropdown>
                   {user.isAuthority &&
                     ["hakim"].includes(user.role?.toLowerCase() || "") && (
                       <List>
