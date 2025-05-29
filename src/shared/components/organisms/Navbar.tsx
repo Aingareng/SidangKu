@@ -64,7 +64,12 @@ export default function Navbar() {
       </div>
       <div className="navbar-center">
         <Link to="/" className="btn btn-ghost text-xl">
-          Sidangku
+          <img
+            src="/sidangku-logo.png"
+            alt="logo"
+            className="w-[50px] h-[50px]"
+          />
+          SiAP-Limboto.id – (Sistem Antrian & Pemberitahuan)
         </Link>
       </div>
       <div className="navbar-end">

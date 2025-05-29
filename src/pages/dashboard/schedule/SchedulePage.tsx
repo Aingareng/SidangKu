@@ -198,10 +198,6 @@ export default function CaseHistoryPage() {
     );
 
     if (typeof itemSelectId === "number") {
-      console.log(
-        "🚀 ~ handleSetTrial ~ payload: ISchedulePayload.schedule:",
-        schedule
-      );
       const payload: ISchedulePayload = {
         case_number: schedule?.case_number as string,
         case_type: schedule?.case_type as "perdata" | "pidana",
